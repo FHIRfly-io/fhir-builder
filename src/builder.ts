@@ -24,9 +24,12 @@
  *   fb.immunization()         → ImmunizationBuilder
  *   fb.procedure()            → ProcedureBuilder
  *   fb.explanationOfBenefit() → ExplanationOfBenefitBuilder
- *
- * Coming soon:
  *   fb.bundle()               → BundleBuilder
+ *
+ * Convenience bundle shortcuts:
+ *   fb.transactionBundle()             → BundleBuilder (type=transaction)
+ *   fb.documentBundle(comp, ...rest)   → BundleBuilder (type=document, resources pre-added)
+ *   fb.collectionBundle(...resources)  → BundleBuilder (type=collection, resources pre-added)
  */
 
 import {
@@ -51,6 +54,8 @@ import { AllergyIntoleranceBuilder } from "./allergy-intolerance-builder.js";
 import { ImmunizationBuilder } from "./immunization-builder.js";
 import { ProcedureBuilder } from "./procedure-builder.js";
 import { ExplanationOfBenefitBuilder } from "./eob-builder.js";
+import { BundleBuilder } from "./bundle-builder.js";
+import type { BundleType } from "./bundle-builder.js";
 
 import type {
   CodeableConcept,
@@ -124,6 +129,38 @@ export class FHIRBuilder {
   /** Create a new ExplanationOfBenefit builder. */
   explanationOfBenefit(): ExplanationOfBenefitBuilder {
     return new ExplanationOfBenefitBuilder();
+  }
+
+  /** Create a new Bundle builder. */
+  bundle(type?: BundleType): BundleBuilder {
+    return new BundleBuilder(type);
+  }
+
+  /** Create a transaction Bundle builder. */
+  transactionBundle(): BundleBuilder {
+    return new BundleBuilder("transaction");
+  }
+
+  /**
+   * Create a document Bundle with a Composition as the first entry.
+   * Additional resources are added after the Composition.
+   */
+  documentBundle(composition: Resource, ...resources: Resource[]): BundleBuilder {
+    const builder = new BundleBuilder("document");
+    builder.add(composition);
+    for (const r of resources) {
+      builder.add(r);
+    }
+    return builder;
+  }
+
+  /** Create a collection Bundle pre-populated with resources. */
+  collectionBundle(...resources: Resource[]): BundleBuilder {
+    const builder = new BundleBuilder("collection");
+    for (const r of resources) {
+      builder.add(r);
+    }
+    return builder;
   }
 
   /** Generate a UUID v4 string. */

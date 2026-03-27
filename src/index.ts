@@ -123,6 +123,20 @@ export type {
   Money,
 } from "./eob-builder.js";
 
+export { BundleBuilder } from "./bundle-builder.js";
+export type {
+  BundleResource,
+  BundleType,
+  BundleEntry,
+  BundleEntryRequest,
+  BundleEntrySearch,
+  BundleEntryResponse,
+  BundleLink,
+  HTTPVerb,
+  SearchEntryMode,
+  AddEntryOptions,
+} from "./bundle-builder.js";
+
 // Code system constants
 export { CodeSystems } from "./code-systems.js";
 export type { CodeSystem } from "./code-systems.js";
