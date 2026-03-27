@@ -11,12 +11,14 @@
  * const patient = fb.patient().name('Jane', 'Doe').gender('female').build();
  * ```
  *
- * Resource builder methods will be added in subsequent tasks:
+ * Resource builders:
  *   fb.patient()              → PatientBuilder
- *   fb.observation()          → ObservationBuilder
- *   fb.condition()            → ConditionBuilder
  *   fb.encounter()            → EncounterBuilder
  *   fb.coverage()             → CoverageBuilder
+ *
+ * Coming soon:
+ *   fb.observation()          → ObservationBuilder
+ *   fb.condition()            → ConditionBuilder
  *   fb.medicationStatement()  → MedicationStatementBuilder
  *   fb.medicationRequest()    → MedicationRequestBuilder
  *   fb.allergyIntolerance()   → AllergyIntoleranceBuilder
@@ -37,6 +39,9 @@ import {
   buildQuantity,
   generateId,
 } from "./helpers.js";
+import { PatientBuilder } from "./patient-builder.js";
+import { EncounterBuilder } from "./encounter-builder.js";
+import { CoverageBuilder } from "./coverage-builder.js";
 
 import type {
   CodeableConcept,
@@ -52,6 +57,21 @@ import type {
 } from "./types.js";
 
 export class FHIRBuilder {
+  /** Create a new Patient builder. */
+  patient(): PatientBuilder {
+    return new PatientBuilder();
+  }
+
+  /** Create a new Encounter builder. */
+  encounter(): EncounterBuilder {
+    return new EncounterBuilder();
+  }
+
+  /** Create a new Coverage builder. */
+  coverage(): CoverageBuilder {
+    return new CoverageBuilder();
+  }
+
   /** Generate a UUID v4 string. */
   generateId(): string {
     return generateId();

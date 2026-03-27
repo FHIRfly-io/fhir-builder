@@ -14,6 +14,30 @@ export { FHIRBuilder } from "./builder.js";
 // Base class for resource builders
 export { ResourceBuilder } from "./resource-builder.js";
 
+// Resource builders
+export { PatientBuilder } from "./patient-builder.js";
+export type {
+  PatientResource,
+  PatientContact,
+  PatientCommunication,
+} from "./patient-builder.js";
+
+export { EncounterBuilder } from "./encounter-builder.js";
+export type {
+  EncounterResource,
+  EncounterStatus,
+  EncounterParticipant,
+  EncounterHospitalization,
+  EncounterLocation,
+} from "./encounter-builder.js";
+
+export { CoverageBuilder } from "./coverage-builder.js";
+export type {
+  CoverageResource,
+  CoverageStatus,
+  CoverageClass,
+} from "./coverage-builder.js";
+
 // Code system constants
 export { CodeSystems } from "./code-systems.js";
 export type { CodeSystem } from "./code-systems.js";
