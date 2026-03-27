@@ -4,7 +4,7 @@ Thank you for your interest in contributing! We welcome contributions that help 
 
 ## What We Accept
 
-- **New resource builders** — following the existing builder pattern in `src/builders/`
+- **New resource builders** — following the existing builder pattern in `src/`
 - **Bug fixes** — with a test that reproduces the issue
 - **Documentation improvements** — typos, clarifications, new examples
 - **Test coverage** — additional tests for existing builders
@@ -54,13 +54,13 @@ npm run build
 
 ## Adding a New Resource Builder
 
-1. Create `src/builders/{resource-name}.ts`
-2. Extend `ResourceBuilder<fhir4.{ResourceType}>`
+1. Create `src/{resource-name}-builder.ts`
+2. Extend `ResourceBuilder<YourResourceType>`
 3. Add fluent setter methods that return `this`
 4. Add shorthand methods for common code systems (e.g., `.loincCode()`, `.icd10()`)
 5. Export from `src/index.ts`
 6. Add factory method to `FHIRBuilder` class
-7. Write tests in `tests/builders/{resource-name}.test.ts`
+7. Write tests in `tests/{resource-name}-builder.test.ts`
 8. Add to the resource table in `README.md`
 
 ## License
