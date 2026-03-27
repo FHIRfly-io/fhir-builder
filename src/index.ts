@@ -90,6 +90,39 @@ export type {
   AllergyReaction,
 } from "./allergy-intolerance-builder.js";
 
+export { ImmunizationBuilder } from "./immunization-builder.js";
+export type {
+  ImmunizationResource,
+  ImmunizationStatus,
+  ImmunizationPerformer,
+  ImmunizationProtocolApplied,
+} from "./immunization-builder.js";
+
+export { ProcedureBuilder } from "./procedure-builder.js";
+export type {
+  ProcedureResource,
+  ProcedureStatus,
+  ProcedurePerformer,
+} from "./procedure-builder.js";
+
+export { ExplanationOfBenefitBuilder } from "./eob-builder.js";
+export type {
+  ExplanationOfBenefitResource,
+  EOBStatus,
+  EOBUse,
+  EOBOutcome,
+  EOBInsurance,
+  EOBItem,
+  EOBItemAdjudication,
+  EOBTotal,
+  EOBPayment,
+  EOBCareTeam,
+  EOBDiagnosis,
+  EOBProcedure,
+  EOBSupportingInfo,
+  Money,
+} from "./eob-builder.js";
+
 // Code system constants
 export { CodeSystems } from "./code-systems.js";
 export type { CodeSystem } from "./code-systems.js";
