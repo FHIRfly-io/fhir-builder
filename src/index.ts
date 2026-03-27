@@ -38,6 +38,30 @@ export type {
   CoverageClass,
 } from "./coverage-builder.js";
 
+export { ObservationBuilder } from "./observation-builder.js";
+export type {
+  ObservationResource,
+  ObservationStatus,
+  ObservationComponent,
+  ObservationReferenceRange,
+} from "./observation-builder.js";
+
+export { ConditionBuilder } from "./condition-builder.js";
+export type {
+  ConditionResource,
+  ConditionClinicalStatus,
+  ConditionVerificationStatus,
+  ConditionStage,
+  ConditionEvidence,
+} from "./condition-builder.js";
+
+export { DiagnosticReportBuilder } from "./diagnostic-report-builder.js";
+export type {
+  DiagnosticReportResource,
+  DiagnosticReportStatus,
+  PresentedForm,
+} from "./diagnostic-report-builder.js";
+
 // Code system constants
 export { CodeSystems } from "./code-systems.js";
 export type { CodeSystem } from "./code-systems.js";

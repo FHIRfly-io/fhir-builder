@@ -15,16 +15,16 @@
  *   fb.patient()              → PatientBuilder
  *   fb.encounter()            → EncounterBuilder
  *   fb.coverage()             → CoverageBuilder
- *
- * Coming soon:
  *   fb.observation()          → ObservationBuilder
  *   fb.condition()            → ConditionBuilder
+ *   fb.diagnosticReport()     → DiagnosticReportBuilder
+ *
+ * Coming soon:
  *   fb.medicationStatement()  → MedicationStatementBuilder
  *   fb.medicationRequest()    → MedicationRequestBuilder
  *   fb.allergyIntolerance()   → AllergyIntoleranceBuilder
  *   fb.immunization()         → ImmunizationBuilder
  *   fb.procedure()            → ProcedureBuilder
- *   fb.diagnosticReport()     → DiagnosticReportBuilder
  *   fb.explanationOfBenefit() → ExplanationOfBenefitBuilder
  *   fb.bundle()               → BundleBuilder
  */
@@ -42,6 +42,9 @@ import {
 import { PatientBuilder } from "./patient-builder.js";
 import { EncounterBuilder } from "./encounter-builder.js";
 import { CoverageBuilder } from "./coverage-builder.js";
+import { ObservationBuilder } from "./observation-builder.js";
+import { ConditionBuilder } from "./condition-builder.js";
+import { DiagnosticReportBuilder } from "./diagnostic-report-builder.js";
 
 import type {
   CodeableConcept,
@@ -70,6 +73,21 @@ export class FHIRBuilder {
   /** Create a new Coverage builder. */
   coverage(): CoverageBuilder {
     return new CoverageBuilder();
+  }
+
+  /** Create a new Observation builder. */
+  observation(): ObservationBuilder {
+    return new ObservationBuilder();
+  }
+
+  /** Create a new Condition builder. */
+  condition(): ConditionBuilder {
+    return new ConditionBuilder();
+  }
+
+  /** Create a new DiagnosticReport builder. */
+  diagnosticReport(): DiagnosticReportBuilder {
+    return new DiagnosticReportBuilder();
   }
 
   /** Generate a UUID v4 string. */
