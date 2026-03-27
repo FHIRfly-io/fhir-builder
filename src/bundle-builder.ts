@@ -24,7 +24,7 @@
  */
 
 import { ResourceBuilder } from "./resource-builder.js";
-import { generateId, cleanObject } from "./helpers.js";
+import { generateId, cleanObject, isUUID } from "./helpers.js";
 import type { Identifier, Resource } from "./types.js";
 
 // ---------------------------------------------------------------------------
@@ -187,7 +187,7 @@ export class BundleBuilder extends ResourceBuilder<BundleResource> {
       cloned.id = generateId();
     }
 
-    const fullUrl = options?.fullUrl ?? `urn:uuid:${cloned.id}`;
+    const fullUrl = options?.fullUrl ?? `urn:uuid:${isUUID(cloned.id!) ? cloned.id : generateId()}`;
 
     const entry: BundleEntry = {
       fullUrl,
@@ -255,7 +255,7 @@ export class BundleBuilder extends ResourceBuilder<BundleResource> {
       const resource = entry.resource;
       if (resource?.id) {
         const key = `${resource.resourceType}/${resource.id}`;
-        refMap.set(key, entry.fullUrl ?? `urn:uuid:${resource.id}`);
+        refMap.set(key, entry.fullUrl ?? `urn:uuid:${isUUID(resource.id) ? resource.id : generateId()}`);
       }
     }
 

@@ -275,4 +275,45 @@ describe("cleanObject", () => {
     const obj = { a: undefined, b: null };
     expect(cleanObject(obj)).toEqual({});
   });
+
+  it("should recursively clean nested objects", () => {
+    const obj = {
+      a: 1,
+      nested: { b: "hello", c: undefined, d: null },
+    };
+    expect(cleanObject(obj)).toEqual({
+      a: 1,
+      nested: { b: "hello" },
+    });
+  });
+
+  it("should recursively clean objects inside arrays", () => {
+    const obj = {
+      items: [
+        { code: "123", display: undefined },
+        { system: "http://loinc.org", value: null, code: "456" },
+      ],
+    };
+    expect(cleanObject(obj)).toEqual({
+      items: [
+        { code: "123" },
+        { system: "http://loinc.org", code: "456" },
+      ],
+    });
+  });
+
+  it("should handle deeply nested structures", () => {
+    const obj = {
+      coding: [{ system: "http://snomed.info/sct", code: "123", display: undefined }],
+      text: undefined,
+    };
+    expect(cleanObject(obj)).toEqual({
+      coding: [{ system: "http://snomed.info/sct", code: "123" }],
+    });
+  });
+
+  it("should preserve arrays with primitive values", () => {
+    const obj = { tags: ["a", "b"], count: 0 };
+    expect(cleanObject(obj)).toEqual({ tags: ["a", "b"], count: 0 });
+  });
 });

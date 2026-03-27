@@ -116,7 +116,8 @@ describe("BundleBuilder", () => {
     const bundle = new BundleBuilder("collection").add(patient).build();
     expect(bundle.entry).toHaveLength(1);
     expect(bundle.entry?.[0]?.resource?.resourceType).toBe("Patient");
-    expect(bundle.entry?.[0]?.fullUrl).toBe("urn:uuid:patient-1");
+    // Non-UUID id "patient-1" gets a generated UUID in fullUrl
+    expect(bundle.entry?.[0]?.fullUrl).toMatch(/^urn:uuid:[0-9a-f]{8}-/);
   });
 
   it("should not include request element for collection bundles", () => {
@@ -283,10 +284,9 @@ describe("BundleBuilder", () => {
       .resolveReferences()
       .build();
 
+    const patientFullUrl = bundle.entry?.[0]?.fullUrl;
     const obsResource = bundle.entry?.[1]?.resource;
-    expect(ref(obsResource, "subject", "reference")).toBe(
-      "urn:uuid:patient-1"
-    );
+    expect(ref(obsResource, "subject", "reference")).toBe(patientFullUrl);
   });
 
   it("should resolve multiple references across resources", () => {
@@ -301,17 +301,20 @@ describe("BundleBuilder", () => {
       .resolveReferences()
       .build();
 
+    const patientFullUrl = bundle.entry?.[0]?.fullUrl;
+    const encounterFullUrl = bundle.entry?.[1]?.fullUrl;
+
     // Observation.subject -> Patient
     expect(ref(bundle.entry?.[2]?.resource, "subject", "reference")).toBe(
-      "urn:uuid:patient-1"
+      patientFullUrl
     );
     // Observation.encounter -> Encounter
     expect(ref(bundle.entry?.[2]?.resource, "encounter", "reference")).toBe(
-      "urn:uuid:enc-1"
+      encounterFullUrl
     );
     // Encounter.subject -> Patient
     expect(ref(bundle.entry?.[1]?.resource, "subject", "reference")).toBe(
-      "urn:uuid:patient-1"
+      patientFullUrl
     );
   });
 
@@ -351,8 +354,9 @@ describe("BundleBuilder", () => {
       .resolveReferences()
       .build();
 
+    const obsFullUrl = bundle.entry?.[0]?.fullUrl;
     expect(ref(bundle.entry?.[1]?.resource, "result", 0, "reference")).toBe(
-      "urn:uuid:obs-1"
+      obsFullUrl
     );
   });
 
@@ -376,6 +380,7 @@ describe("BundleBuilder", () => {
       .resolveReferences()
       .build();
 
+    const patientFullUrl = bundle.entry?.[0]?.fullUrl;
     expect(
       ref(
         bundle.entry?.[1]?.resource,
@@ -386,7 +391,7 @@ describe("BundleBuilder", () => {
         0,
         "reference"
       )
-    ).toBe("urn:uuid:patient-1");
+    ).toBe(patientFullUrl);
   });
 
   it("should handle empty bundle gracefully", () => {
@@ -480,18 +485,20 @@ describe("BundleBuilder", () => {
       expect(entry.request?.method).toBe("POST");
     }
 
-    // References are resolved
+    // References are resolved to entry fullUrls
+    const patientFullUrl = bundle.entry?.[0]?.fullUrl;
+    const encounterFullUrl = bundle.entry?.[1]?.fullUrl;
     expect(ref(bundle.entry?.[2]?.resource, "subject", "reference")).toBe(
-      "urn:uuid:patient-1"
+      patientFullUrl
     );
     expect(ref(bundle.entry?.[2]?.resource, "encounter", "reference")).toBe(
-      "urn:uuid:enc-1"
+      encounterFullUrl
     );
     expect(ref(bundle.entry?.[3]?.resource, "subject", "reference")).toBe(
-      "urn:uuid:patient-1"
+      patientFullUrl
     );
     expect(ref(bundle.entry?.[3]?.resource, "encounter", "reference")).toBe(
-      "urn:uuid:enc-1"
+      encounterFullUrl
     );
   });
 
@@ -509,6 +516,39 @@ describe("BundleBuilder", () => {
     expect(bundle.total).toBe(100);
     expect(bundle.link).toHaveLength(2);
     expect(bundle.entry).toHaveLength(1);
+  });
+
+  it("fullUrl uses urn:uuid: only for valid UUIDs", () => {
+    // Non-UUID ids should NOT produce urn:uuid:{non-uuid}
+    const patient = makePatient(); // id = "patient-1" (not a UUID)
+    const bundle = new BundleBuilder("transaction").add(patient).build();
+    const entry = bundle.entry?.[0];
+    // fullUrl should still be a valid urn:uuid: with a generated UUID
+    expect(entry?.fullUrl).toMatch(/^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    // The resource id should be preserved as-is
+    expect(entry?.resource?.id).toBe("patient-1");
+  });
+
+  it("fullUrl preserves urn:uuid: for auto-generated UUID ids", () => {
+    const patient = new PatientBuilder().name("Auto", "Id").gender("male").build();
+    const bundle = new BundleBuilder("collection").add(patient).build();
+    const entry = bundle.entry?.[0];
+    // Auto-generated ids are UUIDs, so fullUrl should use urn:uuid:{id}
+    expect(entry?.fullUrl).toBe(`urn:uuid:${entry?.resource?.id}`);
+  });
+
+  it("resolveReferences works with non-UUID ids via fullUrl mapping", () => {
+    const patient = makePatient(); // id = "patient-1"
+    const encounter = makeEncounter(); // references "Patient/patient-1"
+    const bundle = new BundleBuilder("transaction")
+      .add(patient)
+      .add(encounter)
+      .resolveReferences()
+      .build();
+    // The encounter's subject reference should be rewritten to the patient's fullUrl
+    const patientFullUrl = bundle.entry?.[0]?.fullUrl;
+    const encounterSubjectRef = (bundle.entry?.[1]?.resource as Record<string, unknown>)?.subject as Record<string, unknown> | undefined;
+    expect(encounterSubjectRef?.reference).toBe(patientFullUrl);
   });
 
   it("toJSON should produce valid JSON", () => {

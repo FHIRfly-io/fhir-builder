@@ -144,6 +144,7 @@ export type { CodeSystem } from "./code-systems.js";
 // Helper functions
 export {
   generateId,
+  isUUID,
   buildCodeableConcept,
   buildCoding,
   addCodingToCodeableConcept,

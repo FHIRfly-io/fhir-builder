@@ -44,6 +44,14 @@ export function generateId(): string {
   });
 }
 
+/**
+ * Check if a string is a valid UUID v4 format.
+ */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export function isUUID(value: string): boolean {
+  return UUID_RE.test(value);
+}
+
 // ---------------------------------------------------------------------------
 // CodeableConcept / Coding
 // ---------------------------------------------------------------------------
@@ -253,15 +261,27 @@ export function buildQuantity(
 // ---------------------------------------------------------------------------
 
 /**
- * Remove undefined and null values from an object (shallow).
+ * Remove undefined and null values from an object (deep).
+ * Recursively cleans nested objects and array elements.
  * Used to produce clean FHIR JSON without `undefined` fields.
  */
 export function cleanObject<T extends Record<string, unknown>>(obj: T): T {
   const result = {} as Record<string, unknown>;
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined && value !== null) {
-      result[key] = value;
+      result[key] = cleanValue(value);
     }
   }
   return result as T;
+}
+
+function cleanValue(value: unknown): unknown {
+  if (value === null || value === undefined) return value;
+  if (Array.isArray(value)) {
+    return value.map((item) => cleanValue(item));
+  }
+  if (typeof value === "object") {
+    return cleanObject(value as Record<string, unknown>);
+  }
+  return value;
 }
