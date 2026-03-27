@@ -18,11 +18,11 @@
  *   fb.observation()          → ObservationBuilder
  *   fb.condition()            → ConditionBuilder
  *   fb.diagnosticReport()     → DiagnosticReportBuilder
- *
- * Coming soon:
  *   fb.medicationStatement()  → MedicationStatementBuilder
  *   fb.medicationRequest()    → MedicationRequestBuilder
  *   fb.allergyIntolerance()   → AllergyIntoleranceBuilder
+ *
+ * Coming soon:
  *   fb.immunization()         → ImmunizationBuilder
  *   fb.procedure()            → ProcedureBuilder
  *   fb.explanationOfBenefit() → ExplanationOfBenefitBuilder
@@ -45,6 +45,9 @@ import { CoverageBuilder } from "./coverage-builder.js";
 import { ObservationBuilder } from "./observation-builder.js";
 import { ConditionBuilder } from "./condition-builder.js";
 import { DiagnosticReportBuilder } from "./diagnostic-report-builder.js";
+import { MedicationStatementBuilder } from "./medication-statement-builder.js";
+import { MedicationRequestBuilder } from "./medication-request-builder.js";
+import { AllergyIntoleranceBuilder } from "./allergy-intolerance-builder.js";
 
 import type {
   CodeableConcept,
@@ -88,6 +91,21 @@ export class FHIRBuilder {
   /** Create a new DiagnosticReport builder. */
   diagnosticReport(): DiagnosticReportBuilder {
     return new DiagnosticReportBuilder();
+  }
+
+  /** Create a new MedicationStatement builder. */
+  medicationStatement(): MedicationStatementBuilder {
+    return new MedicationStatementBuilder();
+  }
+
+  /** Create a new MedicationRequest builder. */
+  medicationRequest(): MedicationRequestBuilder {
+    return new MedicationRequestBuilder();
+  }
+
+  /** Create a new AllergyIntolerance builder. */
+  allergyIntolerance(): AllergyIntoleranceBuilder {
+    return new AllergyIntoleranceBuilder();
   }
 
   /** Generate a UUID v4 string. */

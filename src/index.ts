@@ -62,6 +62,34 @@ export type {
   PresentedForm,
 } from "./diagnostic-report-builder.js";
 
+export { MedicationStatementBuilder } from "./medication-statement-builder.js";
+export type {
+  MedicationStatementResource,
+  MedicationStatementStatus,
+  Dosage,
+} from "./medication-statement-builder.js";
+
+export { MedicationRequestBuilder } from "./medication-request-builder.js";
+export type {
+  MedicationRequestResource,
+  MedicationRequestStatus,
+  MedicationRequestIntent,
+  MedicationRequestPriority,
+  DispenseRequest,
+  MedicationRequestSubstitution,
+} from "./medication-request-builder.js";
+
+export { AllergyIntoleranceBuilder } from "./allergy-intolerance-builder.js";
+export type {
+  AllergyIntoleranceResource,
+  AllergyClinicalStatus,
+  AllergyVerificationStatus,
+  AllergyType,
+  AllergyCategory,
+  AllergyCriticality,
+  AllergyReaction,
+} from "./allergy-intolerance-builder.js";
+
 // Code system constants
 export { CodeSystems } from "./code-systems.js";
 export type { CodeSystem } from "./code-systems.js";
