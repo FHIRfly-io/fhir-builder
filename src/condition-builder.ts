@@ -23,6 +23,7 @@ import {
   buildReference,
 } from "./helpers.js";
 import { CodeSystems } from "./code-systems.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   Annotation,
   CodeableConcept,
@@ -98,6 +99,14 @@ export class ConditionBuilder extends ResourceBuilder<ConditionResource> {
     super("Condition");
     // subject is required — set empty default
     (this.resource as ConditionResource).subject = { reference: "" };
+  }
+
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    if (!this.resource.subject?.reference) {
+      errors.push({ field: "subject", message: "subject is required", severity: "error" });
+    }
+    return errors;
   }
 
   // --- Clinical & Verification Status ---
@@ -204,24 +213,28 @@ export class ConditionBuilder extends ResourceBuilder<ConditionResource> {
 
   /** Set onset date/time. */
   onsetDateTime(dateTime: string): this {
+    this.clearChoiceType(["onsetDateTime", "onsetAge", "onsetPeriod", "onsetString"], "onsetDateTime");
     this.resource.onsetDateTime = dateTime;
     return this;
   }
 
   /** Set onset as an age. */
   onsetAge(value: number, unit: string): this {
+    this.clearChoiceType(["onsetDateTime", "onsetAge", "onsetPeriod", "onsetString"], "onsetAge");
     this.resource.onsetAge = buildQuantity(value, unit);
     return this;
   }
 
   /** Set onset as a period. */
   onsetPeriod(start: string, end?: string): this {
+    this.clearChoiceType(["onsetDateTime", "onsetAge", "onsetPeriod", "onsetString"], "onsetPeriod");
     this.resource.onsetPeriod = buildPeriod(start, end);
     return this;
   }
 
   /** Set onset as a free-text string. */
   onsetString(text: string): this {
+    this.clearChoiceType(["onsetDateTime", "onsetAge", "onsetPeriod", "onsetString"], "onsetString");
     this.resource.onsetString = text;
     return this;
   }
@@ -230,18 +243,21 @@ export class ConditionBuilder extends ResourceBuilder<ConditionResource> {
 
   /** Set abatement date/time. */
   abatementDateTime(dateTime: string): this {
+    this.clearChoiceType(["abatementDateTime", "abatementAge", "abatementString"], "abatementDateTime");
     this.resource.abatementDateTime = dateTime;
     return this;
   }
 
   /** Set abatement as an age. */
   abatementAge(value: number, unit: string): this {
+    this.clearChoiceType(["abatementDateTime", "abatementAge", "abatementString"], "abatementAge");
     this.resource.abatementAge = buildQuantity(value, unit);
     return this;
   }
 
   /** Set abatement as a free-text string. */
   abatementString(text: string): this {
+    this.clearChoiceType(["abatementDateTime", "abatementAge", "abatementString"], "abatementString");
     this.resource.abatementString = text;
     return this;
   }

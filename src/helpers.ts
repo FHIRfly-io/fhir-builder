@@ -11,6 +11,8 @@
 import type {
   CodeableConcept,
   Coding,
+  Dosage,
+  DosageInput,
   HumanName,
   HumanNameInput,
   Identifier,
@@ -273,6 +275,54 @@ export function cleanObject<T extends Record<string, unknown>>(obj: T): T {
     }
   }
   return result as T;
+}
+
+// ---------------------------------------------------------------------------
+// Dosage
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a FHIR Dosage element from a simplified input.
+ *
+ * Used internally by MedicationStatementBuilder and MedicationRequestBuilder.
+ *
+ * ```typescript
+ * buildDosage({ text: '500mg twice daily', route: { code: '26643006', display: 'Oral' } });
+ * ```
+ */
+export function buildDosage(input: DosageInput): Dosage {
+  const d: Dosage = {};
+  if (input.text) d.text = input.text;
+  if (input.route) {
+    d.route = buildCodeableConcept(
+      input.route.code,
+      input.route.system ?? CodeSystems.SNOMED,
+      input.route.display
+    );
+  }
+  if (input.doseQuantity) {
+    d.doseAndRate = [{
+      doseQuantity: buildQuantity(
+        input.doseQuantity.value,
+        input.doseQuantity.unit,
+        input.doseQuantity.system,
+        input.doseQuantity.code
+      ),
+    }];
+  }
+  if (input.timing) {
+    d.timing = {
+      repeat: {
+        ...(input.timing.frequency !== undefined && { frequency: input.timing.frequency }),
+        ...(input.timing.period !== undefined && { period: input.timing.period }),
+        ...(input.timing.periodUnit && { periodUnit: input.timing.periodUnit }),
+      },
+    };
+  }
+  if (input.asNeeded !== undefined) {
+    d.asNeededBoolean = input.asNeeded;
+  }
+  return d;
 }
 
 function cleanValue(value: unknown): unknown {

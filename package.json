@@ -1,6 +1,6 @@
 {
   "name": "@fhirfly-io/fhir-builder",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Fluent TypeScript builder for FHIR R4 resources. Free, offline, open source.",
   "author": "FHIRfly.io LLC <admin@fhirfly.io>",
   "license": "Apache-2.0",
@@ -51,7 +51,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "sideEffects": false,
   "scripts": {
@@ -59,15 +59,16 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "eslint src",
     "prepublishOnly": "npm run build"
   },
-  "dependencies": {},
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@types/fhir": "^0.0.41",
     "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^4.1.2",
     "eslint": "^9.0.0",
     "tsup": "^8.5.0",
     "typescript": "^5.7.0",

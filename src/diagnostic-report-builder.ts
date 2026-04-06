@@ -23,6 +23,7 @@ import {
   buildReference,
 } from "./helpers.js";
 import { CodeSystems } from "./code-systems.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   CodeableConcept,
   Identifier,
@@ -81,6 +82,14 @@ export class DiagnosticReportBuilder extends ResourceBuilder<DiagnosticReportRes
     // status and code are required — set defaults
     (this.resource as DiagnosticReportResource).status = "final";
     (this.resource as DiagnosticReportResource).code = { coding: [] };
+  }
+
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    if (!(this.resource as DiagnosticReportResource).code?.coding?.length) {
+      errors.push({ field: "code", message: "code requires at least one coding", severity: "error" });
+    }
+    return errors;
   }
 
   // --- Required Fields ---
@@ -151,12 +160,14 @@ export class DiagnosticReportBuilder extends ResourceBuilder<DiagnosticReportRes
 
   /** Set effective date/time. */
   effectiveDateTime(dateTime: string): this {
+    this.clearChoiceType(["effectiveDateTime", "effectivePeriod"], "effectiveDateTime");
     this.resource.effectiveDateTime = dateTime;
     return this;
   }
 
   /** Set effective period. */
   effectivePeriod(start: string, end?: string): this {
+    this.clearChoiceType(["effectiveDateTime", "effectivePeriod"], "effectivePeriod");
     this.resource.effectivePeriod = buildPeriod(start, end);
     return this;
   }

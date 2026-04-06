@@ -16,7 +16,7 @@ yarn add @fhirfly-io/fhir-builder
 pnpm add @fhirfly-io/fhir-builder
 ```
 
-**Requirements:** Node.js 18 or later. Zero runtime dependencies.
+**Requirements:** Node.js 22 or later. Zero runtime dependencies.
 
 ## Creating Your First Resource
 

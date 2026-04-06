@@ -14,6 +14,10 @@ export { FHIRBuilder } from "./builder.js";
 // Base class for resource builders
 export { ResourceBuilder } from "./resource-builder.js";
 
+// Error types
+export { BuilderError, ValidationError } from "./errors.js";
+export type { ValidationIssue } from "./errors.js";
+
 // Resource builders
 export { PatientBuilder } from "./patient-builder.js";
 export type {
@@ -66,7 +70,6 @@ export { MedicationStatementBuilder } from "./medication-statement-builder.js";
 export type {
   MedicationStatementResource,
   MedicationStatementStatus,
-  Dosage,
 } from "./medication-statement-builder.js";
 
 export { MedicationRequestBuilder } from "./medication-request-builder.js";
@@ -153,6 +156,7 @@ export {
   buildReference,
   buildPeriod,
   buildQuantity,
+  buildDosage,
   cleanObject,
 } from "./helpers.js";
 
@@ -177,5 +181,6 @@ export type {
   AdministrativeGender,
   HumanNameInput,
   AddressInput,
+  Dosage,
   DosageInput,
 } from "./types.js";

@@ -11,6 +11,7 @@ import {
   buildReference,
   buildPeriod,
   buildQuantity,
+  buildDosage,
   cleanObject,
   CodeSystems,
 } from "../src/index.js";
@@ -252,6 +253,30 @@ describe("buildQuantity", () => {
       system: CodeSystems.UCUM,
       code: "mm[Hg]",
     });
+  });
+});
+
+describe("buildDosage", () => {
+  it("should build a text-only dosage", () => {
+    const d = buildDosage({ text: "Take 1 tablet daily" });
+    expect(d.text).toBe("Take 1 tablet daily");
+    expect(d.route).toBeUndefined();
+    expect(d.doseAndRate).toBeUndefined();
+  });
+
+  it("should build a full dosage with route and dose", () => {
+    const d = buildDosage({
+      text: "500mg twice daily",
+      route: { code: "26643006", display: "Oral" },
+      doseQuantity: { value: 500, unit: "mg" },
+      timing: { frequency: 2, period: 1, periodUnit: "d" },
+      asNeeded: false,
+    });
+    expect(d.text).toBe("500mg twice daily");
+    expect(d.route?.coding?.[0]?.code).toBe("26643006");
+    expect(d.doseAndRate?.[0]?.doseQuantity?.value).toBe(500);
+    expect(d.timing?.repeat?.frequency).toBe(2);
+    expect(d.asNeededBoolean).toBe(false);
   });
 });
 

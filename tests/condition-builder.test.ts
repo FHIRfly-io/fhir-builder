@@ -5,11 +5,12 @@ import {
   ConditionBuilder,
   FHIRBuilder,
   CodeSystems,
+  ValidationError,
 } from "../src/index.js";
 
 describe("ConditionBuilder", () => {
   it("should create a Condition resource", () => {
-    const condition = new ConditionBuilder().build();
+    const condition = new ConditionBuilder().subject("Patient/test").build();
     expect(condition.resourceType).toBe("Condition");
     expect(condition.id).toBeDefined();
   });
@@ -24,6 +25,7 @@ describe("ConditionBuilder", () => {
 
   it("should set clinicalStatus with correct system", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .clinicalStatus("active")
       .build();
     expect(condition.clinicalStatus?.coding?.[0]?.code).toBe("active");
@@ -34,6 +36,7 @@ describe("ConditionBuilder", () => {
 
   it("should set verificationStatus with correct system", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .verificationStatus("confirmed")
       .build();
     expect(condition.verificationStatus?.coding?.[0]?.code).toBe("confirmed");
@@ -46,6 +49,7 @@ describe("ConditionBuilder", () => {
 
   it("should add category with default system", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .category("encounter-diagnosis")
       .build();
     expect(condition.category).toHaveLength(1);
@@ -59,6 +63,7 @@ describe("ConditionBuilder", () => {
 
   it("should set severity with SNOMED default", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .severity("24484000", undefined, "Severe")
       .build();
     expect(condition.severity?.coding?.[0]?.code).toBe("24484000");
@@ -70,6 +75,7 @@ describe("ConditionBuilder", () => {
 
   it("should set code", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .code("73211009", CodeSystems.SNOMED, "Diabetes mellitus")
       .build();
     expect(condition.code?.coding?.[0]?.code).toBe("73211009");
@@ -77,6 +83,7 @@ describe("ConditionBuilder", () => {
 
   it("should set code via icd10 shorthand", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .icd10("E11.9", "Type 2 diabetes mellitus")
       .build();
     expect(condition.code?.coding?.[0]?.code).toBe("E11.9");
@@ -88,6 +95,7 @@ describe("ConditionBuilder", () => {
 
   it("should set code via snomedCode shorthand", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .snomedCode("73211009", "Diabetes mellitus")
       .build();
     expect(condition.code?.coding?.[0]?.code).toBe("73211009");
@@ -105,6 +113,7 @@ describe("ConditionBuilder", () => {
 
   it("should set encounter", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .encounter("Encounter/enc-1")
       .build();
     expect(condition.encounter?.reference).toBe("Encounter/enc-1");
@@ -114,6 +123,7 @@ describe("ConditionBuilder", () => {
 
   it("should set onsetDateTime", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .onsetDateTime("2020-03-15")
       .build();
     expect(condition.onsetDateTime).toBe("2020-03-15");
@@ -121,6 +131,7 @@ describe("ConditionBuilder", () => {
 
   it("should set onsetAge", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .onsetAge(45, "years")
       .build();
     expect(condition.onsetAge?.value).toBe(45);
@@ -129,6 +140,7 @@ describe("ConditionBuilder", () => {
 
   it("should set onsetPeriod", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .onsetPeriod("2020-01-01", "2020-06-01")
       .build();
     expect(condition.onsetPeriod?.start).toBe("2020-01-01");
@@ -137,6 +149,7 @@ describe("ConditionBuilder", () => {
 
   it("should set onsetString", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .onsetString("Approximately 5 years ago")
       .build();
     expect(condition.onsetString).toBe("Approximately 5 years ago");
@@ -146,6 +159,7 @@ describe("ConditionBuilder", () => {
 
   it("should set abatementDateTime", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .abatementDateTime("2024-01-01")
       .build();
     expect(condition.abatementDateTime).toBe("2024-01-01");
@@ -153,6 +167,7 @@ describe("ConditionBuilder", () => {
 
   it("should set abatementAge", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .abatementAge(50, "years")
       .build();
     expect(condition.abatementAge?.value).toBe(50);
@@ -160,6 +175,7 @@ describe("ConditionBuilder", () => {
 
   it("should set abatementString", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .abatementString("Resolved after treatment")
       .build();
     expect(condition.abatementString).toBe("Resolved after treatment");
@@ -169,6 +185,7 @@ describe("ConditionBuilder", () => {
 
   it("should set recordedDate", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .recordedDate("2024-01-15")
       .build();
     expect(condition.recordedDate).toBe("2024-01-15");
@@ -176,6 +193,7 @@ describe("ConditionBuilder", () => {
 
   it("should set recorder", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .recorder("Practitioner/dr-smith")
       .build();
     expect(condition.recorder?.reference).toBe("Practitioner/dr-smith");
@@ -183,6 +201,7 @@ describe("ConditionBuilder", () => {
 
   it("should set asserter", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .asserter("Patient/123", "Jane Doe")
       .build();
     expect(condition.asserter?.reference).toBe("Patient/123");
@@ -193,6 +212,7 @@ describe("ConditionBuilder", () => {
 
   it("should add notes", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .note("Patient reports improvement")
       .note("Follow up in 3 months")
       .build();
@@ -204,6 +224,7 @@ describe("ConditionBuilder", () => {
 
   it("should add body sites with SNOMED default", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .bodySite("51185008", undefined, "Thorax")
       .build();
     expect(condition.bodySite).toHaveLength(1);
@@ -217,6 +238,7 @@ describe("ConditionBuilder", () => {
 
   it("should add stage with summary", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .stage({
         code: "786005",
         system: CodeSystems.SNOMED,
@@ -229,6 +251,7 @@ describe("ConditionBuilder", () => {
 
   it("should add stage with assessment", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .stage(undefined, ["Observation/staging-obs"])
       .build();
     expect(condition.stage?.[0]?.assessment?.[0]?.reference).toBe(
@@ -240,6 +263,7 @@ describe("ConditionBuilder", () => {
 
   it("should add evidence with code", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .evidence({
         code: "258710007",
         system: CodeSystems.SNOMED,
@@ -254,6 +278,7 @@ describe("ConditionBuilder", () => {
 
   it("should add evidence with detail reference", () => {
     const condition = new ConditionBuilder()
+      .subject("Patient/test")
       .evidence(undefined, ["Observation/lab-result"])
       .build();
     expect(condition.evidence?.[0]?.detail?.[0]?.reference).toBe(
@@ -299,5 +324,60 @@ describe("ConditionBuilder", () => {
     const parsed = JSON.parse(json);
     expect(parsed.resourceType).toBe("Condition");
     expect(parsed.code.coding[0].code).toBe("E11.9");
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when subject is missing", () => {
+      expect(() => new ConditionBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should include subject in validation errors", () => {
+      try {
+        new ConditionBuilder().build();
+      } catch (e) {
+        expect(e).toBeInstanceOf(ValidationError);
+        expect((e as ValidationError).errors.some(err => err.field === "subject")).toBe(true);
+      }
+    });
+
+    it("should not throw when subject is provided", () => {
+      expect(() => new ConditionBuilder().subject("Patient/123").build()).not.toThrow();
+    });
+  });
+
+  // --- Choice Types ---
+
+  describe("choice types", () => {
+    it("onsetDateTime should clear onsetAge", () => {
+      const condition = new ConditionBuilder()
+        .subject("Patient/test")
+        .onsetAge(45, "years")
+        .onsetDateTime("2020-01-01")
+        .build();
+      expect(condition.onsetDateTime).toBe("2020-01-01");
+      expect(condition.onsetAge).toBeUndefined();
+    });
+
+    it("onsetAge should clear onsetDateTime", () => {
+      const condition = new ConditionBuilder()
+        .subject("Patient/test")
+        .onsetDateTime("2020-01-01")
+        .onsetAge(45, "years")
+        .build();
+      expect(condition.onsetAge?.value).toBe(45);
+      expect(condition.onsetDateTime).toBeUndefined();
+    });
+
+    it("abatementDateTime should clear abatementAge", () => {
+      const condition = new ConditionBuilder()
+        .subject("Patient/test")
+        .abatementAge(50, "years")
+        .abatementDateTime("2025-01-01")
+        .build();
+      expect(condition.abatementDateTime).toBe("2025-01-01");
+      expect(condition.abatementAge).toBeUndefined();
+    });
   });
 });

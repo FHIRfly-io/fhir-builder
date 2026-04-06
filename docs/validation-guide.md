@@ -20,16 +20,21 @@ curl -L -o validator_cli.jar \
 ### Validate a Single Resource
 
 ```bash
-# Save a resource to a file
-node -e "
-  const { PatientBuilder } = require('@fhirfly-io/fhir-builder');
-  const patient = new PatientBuilder()
-    .name('Jane', 'Doe')
-    .dob('1990-01-15')
-    .gender('female')
-    .build();
-  require('fs').writeFileSync('patient.json', JSON.stringify(patient, null, 2));
-"
+# save-patient.mjs
+import { FHIRBuilder } from '@fhirfly-io/fhir-builder';
+import { writeFileSync } from 'fs';
+
+const fb = new FHIRBuilder();
+const patient = fb.patient()
+  .name('Jane', 'Doe')
+  .dob('1990-01-15')
+  .gender('female')
+  .build();
+writeFileSync('patient.json', JSON.stringify(patient, null, 2));
+```
+
+```bash
+node save-patient.mjs
 
 # Validate against base FHIR R4
 java -jar validator_cli.jar patient.json -version 4.0.1
@@ -83,6 +88,8 @@ function validateFHIR(
   try {
     writeFileSync(file, JSON.stringify(resource, null, 2));
 
+    // SECURITY: In production, validate/sanitize options.ig and options.profile
+    // to prevent command injection. Never pass unsanitized user input.
     let cmd = `java -jar validator_cli.jar ${file} -version 4.0.1`;
     if (options?.ig) cmd += ` -ig ${options.ig}`;
     if (options?.profile) cmd += ` -profile ${options.profile}`;
@@ -103,7 +110,8 @@ function validateFHIR(
 }
 
 // Usage
-const patient = new PatientBuilder().name('Jane', 'Doe').gender('female').build();
+const fb = new FHIRBuilder();
+const patient = fb.patient().name('Jane', 'Doe').gender('female').build();
 const result = validateFHIR(patient, { ig: 'hl7.fhir.us.core#6.1.0' });
 console.log(result.valid ? 'Valid!' : `Errors: ${result.errors.join('\n')}`);
 ```

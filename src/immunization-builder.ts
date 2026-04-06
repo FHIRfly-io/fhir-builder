@@ -22,6 +22,7 @@ import {
   buildReference,
 } from "./helpers.js";
 import { CodeSystems } from "./code-systems.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   Annotation,
   CodeableConcept,
@@ -91,6 +92,17 @@ export class ImmunizationBuilder extends ResourceBuilder<ImmunizationResource> {
     (this.resource as ImmunizationResource).patient = { reference: "" };
   }
 
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    if (!this.resource.patient?.reference) {
+      errors.push({ field: "patient", message: "patient is required", severity: "error" });
+    }
+    if (!(this.resource as ImmunizationResource).vaccineCode?.coding?.length) {
+      errors.push({ field: "vaccineCode", message: "vaccineCode requires at least one coding", severity: "error" });
+    }
+    return errors;
+  }
+
   // --- Required Fields ---
 
   /** Set immunization status (required). */
@@ -129,12 +141,14 @@ export class ImmunizationBuilder extends ResourceBuilder<ImmunizationResource> {
 
   /** Set occurrence date/time (required — either this or occurrenceString). */
   occurrenceDateTime(dateTime: string): this {
+    this.clearChoiceType(["occurrenceDateTime", "occurrenceString"], "occurrenceDateTime");
     this.resource.occurrenceDateTime = dateTime;
     return this;
   }
 
   /** Set occurrence as text (e.g., "Spring 2023"). */
   occurrenceString(text: string): this {
+    this.clearChoiceType(["occurrenceDateTime", "occurrenceString"], "occurrenceString");
     this.resource.occurrenceString = text;
     return this;
   }

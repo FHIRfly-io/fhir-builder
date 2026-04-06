@@ -5,11 +5,12 @@ import {
   ImmunizationBuilder,
   FHIRBuilder,
   CodeSystems,
+  ValidationError,
 } from "../src/index.js";
 
 describe("ImmunizationBuilder", () => {
   it("should create an Immunization resource with defaults", () => {
-    const imm = new ImmunizationBuilder().build();
+    const imm = new ImmunizationBuilder().patient("Patient/test").cvxCode("207").build();
     expect(imm.resourceType).toBe("Immunization");
     expect(imm.status).toBe("completed");
     expect(imm.id).toBeDefined();
@@ -23,12 +24,13 @@ describe("ImmunizationBuilder", () => {
   // --- Required Fields ---
 
   it("should set status", () => {
-    const imm = new ImmunizationBuilder().status("not-done").build();
+    const imm = new ImmunizationBuilder().patient("Patient/test").cvxCode("207").status("not-done").build();
     expect(imm.status).toBe("not-done");
   });
 
   it("should set vaccine code", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test")
       .vaccineCode("207", CodeSystems.CVX, "COVID-19 mRNA")
       .build();
     expect(imm.vaccineCode.coding?.[0]?.code).toBe("207");
@@ -37,6 +39,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should set vaccine via cvxCode shorthand", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test")
       .cvxCode("207", "COVID-19 mRNA")
       .build();
     expect(imm.vaccineCode.coding?.[0]?.code).toBe("207");
@@ -45,6 +48,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should add additional coding (enrichment pattern)", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test")
       .cvxCode("207")
       .addCoding({ system: CodeSystems.MVX, code: "MOD", display: "Moderna" })
       .build();
@@ -53,7 +57,7 @@ describe("ImmunizationBuilder", () => {
   });
 
   it("should set patient", () => {
-    const imm = new ImmunizationBuilder().patient("Patient/123").build();
+    const imm = new ImmunizationBuilder().patient("Patient/123").cvxCode("207").build();
     expect(imm.patient.reference).toBe("Patient/123");
   });
 
@@ -61,6 +65,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should set occurrenceDateTime", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .occurrenceDateTime("2024-01-15")
       .build();
     expect(imm.occurrenceDateTime).toBe("2024-01-15");
@@ -68,6 +73,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should set occurrenceString", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .occurrenceString("Spring 2023")
       .build();
     expect(imm.occurrenceString).toBe("Spring 2023");
@@ -77,23 +83,25 @@ describe("ImmunizationBuilder", () => {
 
   it("should set encounter", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .encounter("Encounter/enc-1")
       .build();
     expect(imm.encounter?.reference).toBe("Encounter/enc-1");
   });
 
   it("should set recorded date", () => {
-    const imm = new ImmunizationBuilder().recorded("2024-01-15").build();
+    const imm = new ImmunizationBuilder().patient("Patient/test").cvxCode("207").recorded("2024-01-15").build();
     expect(imm.recorded).toBe("2024-01-15");
   });
 
   it("should set primarySource", () => {
-    const imm = new ImmunizationBuilder().primarySource(true).build();
+    const imm = new ImmunizationBuilder().patient("Patient/test").cvxCode("207").primarySource(true).build();
     expect(imm.primarySource).toBe(true);
   });
 
   it("should set reportOrigin", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .reportOrigin("recall", undefined, "Parent/Guardian Recall")
       .build();
     expect(imm.reportOrigin?.coding?.[0]?.code).toBe("recall");
@@ -103,6 +111,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should set location", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .location("Location/clinic-1")
       .build();
     expect(imm.location?.reference).toBe("Location/clinic-1");
@@ -110,18 +119,20 @@ describe("ImmunizationBuilder", () => {
 
   it("should set manufacturer", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .manufacturer("Organization/moderna", "Moderna Inc.")
       .build();
     expect(imm.manufacturer?.reference).toBe("Organization/moderna");
   });
 
   it("should set lotNumber", () => {
-    const imm = new ImmunizationBuilder().lotNumber("ABCD1234").build();
+    const imm = new ImmunizationBuilder().patient("Patient/test").cvxCode("207").lotNumber("ABCD1234").build();
     expect(imm.lotNumber).toBe("ABCD1234");
   });
 
   it("should set expirationDate", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .expirationDate("2025-06-30")
       .build();
     expect(imm.expirationDate).toBe("2025-06-30");
@@ -129,6 +140,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should set site", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .site("368208006", undefined, "Left upper arm")
       .build();
     expect(imm.site?.coding?.[0]?.code).toBe("368208006");
@@ -137,13 +149,14 @@ describe("ImmunizationBuilder", () => {
 
   it("should set route", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .route("78421000", undefined, "Intramuscular")
       .build();
     expect(imm.route?.coding?.[0]?.code).toBe("78421000");
   });
 
   it("should set doseQuantity", () => {
-    const imm = new ImmunizationBuilder().doseQuantity(0.5, "mL").build();
+    const imm = new ImmunizationBuilder().patient("Patient/test").cvxCode("207").doseQuantity(0.5, "mL").build();
     expect(imm.doseQuantity?.value).toBe(0.5);
     expect(imm.doseQuantity?.unit).toBe("mL");
   });
@@ -152,6 +165,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should add performer", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .performer("Practitioner/nurse-1", "AP", undefined, "Administering Provider")
       .build();
     expect(imm.performer).toHaveLength(1);
@@ -161,6 +175,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should add performer without function", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .performer("Practitioner/nurse-1")
       .build();
     expect(imm.performer?.[0]?.function).toBeUndefined();
@@ -170,6 +185,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should add reason codes", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .reasonCode("429060002", CodeSystems.SNOMED, "Procedure to meet occupational requirement")
       .build();
     expect(imm.reasonCode?.[0]?.coding?.[0]?.code).toBe("429060002");
@@ -177,18 +193,20 @@ describe("ImmunizationBuilder", () => {
 
   it("should add notes", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .note("No adverse reaction observed")
       .build();
     expect(imm.note?.[0]?.text).toBe("No adverse reaction observed");
   });
 
   it("should set isSubpotent", () => {
-    const imm = new ImmunizationBuilder().isSubpotent(false).build();
+    const imm = new ImmunizationBuilder().patient("Patient/test").cvxCode("207").isSubpotent(false).build();
     expect(imm.isSubpotent).toBe(false);
   });
 
   it("should set statusReason", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .status("not-done")
       .statusReason("MEDPREC", undefined, "Medical precaution")
       .build();
@@ -199,6 +217,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should add protocol applied with dose number", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .protocolApplied({
         series: "COVID-19 Primary Series",
         doseNumber: 2,
@@ -217,6 +236,7 @@ describe("ImmunizationBuilder", () => {
 
   it("should support string dose numbers", () => {
     const imm = new ImmunizationBuilder()
+      .patient("Patient/test").cvxCode("207")
       .protocolApplied({ doseNumber: "Booster" })
       .build();
     expect(imm.protocolApplied?.[0]?.doseNumberString).toBe("Booster");
@@ -256,5 +276,47 @@ describe("ImmunizationBuilder", () => {
       .toJSON();
     const parsed = JSON.parse(json);
     expect(parsed.resourceType).toBe("Immunization");
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when patient and vaccineCode are missing", () => {
+      expect(() => new ImmunizationBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should throw when only patient is provided (no vaccineCode)", () => {
+      expect(() => new ImmunizationBuilder().patient("Patient/123").build()).toThrow(ValidationError);
+    });
+
+    it("should include correct fields in validation errors", () => {
+      try {
+        new ImmunizationBuilder().build();
+      } catch (e) {
+        expect(e).toBeInstanceOf(ValidationError);
+        const fields = (e as ValidationError).errors.map(err => err.field);
+        expect(fields).toContain("patient");
+        expect(fields).toContain("vaccineCode");
+      }
+    });
+
+    it("should not throw when required fields are provided", () => {
+      expect(() => new ImmunizationBuilder().patient("Patient/123").cvxCode("207").build()).not.toThrow();
+    });
+  });
+
+  // --- Choice Types ---
+
+  describe("choice types", () => {
+    it("occurrenceString should clear occurrenceDateTime", () => {
+      const imm = new ImmunizationBuilder()
+        .patient("Patient/test")
+        .cvxCode("207")
+        .occurrenceDateTime("2024-01-15")
+        .occurrenceString("Spring 2023")
+        .build();
+      expect(imm.occurrenceString).toBe("Spring 2023");
+      expect(imm.occurrenceDateTime).toBeUndefined();
+    });
   });
 });

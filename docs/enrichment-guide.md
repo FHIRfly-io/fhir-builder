@@ -56,7 +56,7 @@ const med = fb.medicationStatement()
 // ] } }
 ```
 
-### Conditions: ICD-10 to SNOMED Crosswalk
+### Conditions: ICD-10 Display Names
 
 ```typescript
 // Without enrichment

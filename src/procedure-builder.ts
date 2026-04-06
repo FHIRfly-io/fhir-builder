@@ -21,6 +21,7 @@ import {
   buildReference,
 } from "./helpers.js";
 import { CodeSystems } from "./code-systems.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   Annotation,
   CodeableConcept,
@@ -84,6 +85,14 @@ export class ProcedureBuilder extends ResourceBuilder<ProcedureResource> {
     (this.resource as ProcedureResource).subject = { reference: "" };
   }
 
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    if (!this.resource.subject?.reference) {
+      errors.push({ field: "subject", message: "subject is required", severity: "error" });
+    }
+    return errors;
+  }
+
   // --- Required Fields ---
 
   /** Set procedure status (required). */
@@ -131,18 +140,21 @@ export class ProcedureBuilder extends ResourceBuilder<ProcedureResource> {
 
   /** Set performed date/time. */
   performedDateTime(dateTime: string): this {
+    this.clearChoiceType(["performedDateTime", "performedPeriod", "performedString"], "performedDateTime");
     this.resource.performedDateTime = dateTime;
     return this;
   }
 
   /** Set performed period. */
   performedPeriod(start: string, end?: string): this {
+    this.clearChoiceType(["performedDateTime", "performedPeriod", "performedString"], "performedPeriod");
     this.resource.performedPeriod = buildPeriod(start, end);
     return this;
   }
 
   /** Set performed as a free-text string. */
   performedString(text: string): this {
+    this.clearChoiceType(["performedDateTime", "performedPeriod", "performedString"], "performedString");
     this.resource.performedString = text;
     return this;
   }

@@ -5,11 +5,12 @@ import {
   CoverageBuilder,
   FHIRBuilder,
   CodeSystems,
+  ValidationError,
 } from "../src/index.js";
 
 describe("CoverageBuilder", () => {
   it("should create a Coverage resource with defaults", () => {
-    const coverage = new CoverageBuilder().build();
+    const coverage = new CoverageBuilder().beneficiary("Patient/test").payor("Organization/test").build();
     expect(coverage.resourceType).toBe("Coverage");
     expect(coverage.status).toBe("active");
     expect(coverage.id).toBeDefined();
@@ -24,13 +25,14 @@ describe("CoverageBuilder", () => {
   // --- Required Fields ---
 
   it("should set status", () => {
-    const coverage = new CoverageBuilder().status("cancelled").build();
+    const coverage = new CoverageBuilder().beneficiary("Patient/test").payor("Organization/test").status("cancelled").build();
     expect(coverage.status).toBe("cancelled");
   });
 
   it("should set beneficiary", () => {
     const coverage = new CoverageBuilder()
       .beneficiary("Patient/123", "Jane Doe")
+      .payor("Organization/test")
       .build();
     expect(coverage.beneficiary.reference).toBe("Patient/123");
     expect(coverage.beneficiary.display).toBe("Jane Doe");
@@ -38,12 +40,13 @@ describe("CoverageBuilder", () => {
 
   it("should set beneficiary from resource", () => {
     const patient = { resourceType: "Patient", id: "abc" };
-    const coverage = new CoverageBuilder().beneficiary(patient).build();
+    const coverage = new CoverageBuilder().beneficiary(patient).payor("Organization/test").build();
     expect(coverage.beneficiary.reference).toBe("Patient/abc");
   });
 
   it("should add payors", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test")
       .payor("Organization/ins-co", "Acme Insurance")
       .build();
     expect(coverage.payor).toHaveLength(1);
@@ -53,6 +56,7 @@ describe("CoverageBuilder", () => {
 
   it("should support multiple payors", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test")
       .payor("Organization/primary")
       .payor("Organization/secondary")
       .build();
@@ -63,6 +67,7 @@ describe("CoverageBuilder", () => {
 
   it("should set type with default ActCode system", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .type("EHCPOL", undefined, "Extended healthcare")
       .build();
     expect(coverage.type?.coding?.[0]?.code).toBe("EHCPOL");
@@ -71,6 +76,7 @@ describe("CoverageBuilder", () => {
 
   it("should set type with custom system", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .type("custom", "http://custom.org")
       .build();
     expect(coverage.type?.coding?.[0]?.system).toBe("http://custom.org");
@@ -78,6 +84,7 @@ describe("CoverageBuilder", () => {
 
   it("should set policy holder", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .policyHolder("Patient/holder-1")
       .build();
     expect(coverage.policyHolder?.reference).toBe("Patient/holder-1");
@@ -85,6 +92,7 @@ describe("CoverageBuilder", () => {
 
   it("should set subscriber", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .subscriber("Patient/sub-1", "John Doe")
       .build();
     expect(coverage.subscriber?.reference).toBe("Patient/sub-1");
@@ -93,18 +101,20 @@ describe("CoverageBuilder", () => {
 
   it("should set subscriber ID", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .subscriberId("SUB-456")
       .build();
     expect(coverage.subscriberId).toBe("SUB-456");
   });
 
   it("should set dependent", () => {
-    const coverage = new CoverageBuilder().dependent("01").build();
+    const coverage = new CoverageBuilder().beneficiary("Patient/test").payor("Organization/test").dependent("01").build();
     expect(coverage.dependent).toBe("01");
   });
 
   it("should set relationship with default system", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .relationship("self", undefined, "Self")
       .build();
     expect(coverage.relationship?.coding?.[0]?.code).toBe("self");
@@ -115,6 +125,7 @@ describe("CoverageBuilder", () => {
 
   it("should set period", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .period("2024-01-01", "2024-12-31")
       .build();
     expect(coverage.period?.start).toBe("2024-01-01");
@@ -125,6 +136,7 @@ describe("CoverageBuilder", () => {
 
   it("should add class info", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .classInfo("group", "GRP-123", "Employee Group")
       .build();
     expect(coverage.class).toHaveLength(1);
@@ -135,6 +147,7 @@ describe("CoverageBuilder", () => {
 
   it("should add multiple class entries", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .classInfo("group", "GRP-123", "Employee Group")
       .classInfo("plan", "PLN-456", "Gold Plan")
       .classInfo("subclass", "DENTAL", "Dental Coverage")
@@ -144,6 +157,7 @@ describe("CoverageBuilder", () => {
 
   it("should add class info without name", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .classInfo("group", "GRP-123")
       .build();
     expect(coverage.class?.[0]?.name).toBeUndefined();
@@ -153,13 +167,14 @@ describe("CoverageBuilder", () => {
 
   it("should set network", () => {
     const coverage = new CoverageBuilder()
+      .beneficiary("Patient/test").payor("Organization/test")
       .network("PPO Network A")
       .build();
     expect(coverage.network).toBe("PPO Network A");
   });
 
   it("should set order", () => {
-    const coverage = new CoverageBuilder().order(1).build();
+    const coverage = new CoverageBuilder().beneficiary("Patient/test").payor("Organization/test").order(1).build();
     expect(coverage.order).toBe(1);
   });
 
@@ -204,5 +219,32 @@ describe("CoverageBuilder", () => {
     expect(parsed.resourceType).toBe("Coverage");
     expect(parsed.beneficiary.reference).toBe("Patient/123");
     expect(parsed.payor[0].reference).toBe("Organization/ins-co");
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when beneficiary and payor are missing", () => {
+      expect(() => new CoverageBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should throw when only beneficiary is provided", () => {
+      expect(() => new CoverageBuilder().beneficiary("Patient/123").build()).toThrow(ValidationError);
+    });
+
+    it("should include correct fields in validation errors", () => {
+      try {
+        new CoverageBuilder().build();
+      } catch (e) {
+        expect(e).toBeInstanceOf(ValidationError);
+        const fields = (e as ValidationError).errors.map(err => err.field);
+        expect(fields).toContain("beneficiary");
+        expect(fields).toContain("payor");
+      }
+    });
+
+    it("should not throw when required fields are provided", () => {
+      expect(() => new CoverageBuilder().beneficiary("Patient/123").payor("Organization/ins").build()).not.toThrow();
+    });
   });
 });

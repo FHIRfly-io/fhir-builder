@@ -5,11 +5,12 @@ import {
   DiagnosticReportBuilder,
   FHIRBuilder,
   CodeSystems,
+  ValidationError,
 } from "../src/index.js";
 
 describe("DiagnosticReportBuilder", () => {
   it("should create a DiagnosticReport resource with defaults", () => {
-    const report = new DiagnosticReportBuilder().build();
+    const report = new DiagnosticReportBuilder().loincCode("58410-2").build();
     expect(report.resourceType).toBe("DiagnosticReport");
     expect(report.status).toBe("final");
     expect(report.id).toBeDefined();
@@ -25,6 +26,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should set status", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .status("preliminary")
       .build();
     expect(report.status).toBe("preliminary");
@@ -51,6 +53,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should add category with default v2-0074 system", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .category("LAB", undefined, "Laboratory")
       .build();
     expect(report.category).toHaveLength(1);
@@ -60,6 +63,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should add multiple categories", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .category("LAB")
       .category("RAD")
       .build();
@@ -70,6 +74,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should set subject", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .subject("Patient/123", "Jane Doe")
       .build();
     expect(report.subject?.reference).toBe("Patient/123");
@@ -78,6 +83,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should set encounter", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .encounter("Encounter/enc-1")
       .build();
     expect(report.encounter?.reference).toBe("Encounter/enc-1");
@@ -87,6 +93,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should set effectiveDateTime", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .effectiveDateTime("2024-01-15T10:30:00Z")
       .build();
     expect(report.effectiveDateTime).toBe("2024-01-15T10:30:00Z");
@@ -94,6 +101,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should set effectivePeriod", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .effectivePeriod("2024-01-15", "2024-01-16")
       .build();
     expect(report.effectivePeriod?.start).toBe("2024-01-15");
@@ -102,6 +110,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should set issued", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .issued("2024-01-15T12:00:00Z")
       .build();
     expect(report.issued).toBe("2024-01-15T12:00:00Z");
@@ -111,6 +120,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should add performers", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .performer("Practitioner/lab-tech", "Lab Technician")
       .performer("Organization/lab-corp")
       .build();
@@ -122,6 +132,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should add result references", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .result("Observation/obs-1")
       .result("Observation/obs-2")
       .result("Observation/obs-3")
@@ -133,7 +144,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should add result from resource object", () => {
     const obs = { resourceType: "Observation", id: "obs-abc" };
-    const report = new DiagnosticReportBuilder().result(obs).build();
+    const report = new DiagnosticReportBuilder().loincCode("58410-2").result(obs).build();
     expect(report.result?.[0]?.reference).toBe("Observation/obs-abc");
   });
 
@@ -141,6 +152,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should set conclusion text", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .conclusion("All values within normal limits")
       .build();
     expect(report.conclusion).toBe("All values within normal limits");
@@ -148,6 +160,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should add conclusion codes", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .conclusionCode(
         "260394003",
         CodeSystems.SNOMED,
@@ -162,6 +175,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should add presented form with data", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .presentedForm("application/pdf", "base64data==")
       .build();
     expect(report.presentedForm).toHaveLength(1);
@@ -171,6 +185,7 @@ describe("DiagnosticReportBuilder", () => {
 
   it("should add presented form with URL", () => {
     const report = new DiagnosticReportBuilder()
+      .loincCode("58410-2")
       .presentedForm(
         "application/pdf",
         undefined,
@@ -223,5 +238,31 @@ describe("DiagnosticReportBuilder", () => {
     const parsed = JSON.parse(json);
     expect(parsed.resourceType).toBe("DiagnosticReport");
     expect(parsed.result).toHaveLength(1);
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when code is missing", () => {
+      expect(() => new DiagnosticReportBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should not throw when code is provided", () => {
+      expect(() => new DiagnosticReportBuilder().loincCode("58410-2").build()).not.toThrow();
+    });
+  });
+
+  // --- Choice Types ---
+
+  describe("choice types", () => {
+    it("effectivePeriod should clear effectiveDateTime", () => {
+      const report = new DiagnosticReportBuilder()
+        .loincCode("58410-2")
+        .effectiveDateTime("2024-01-15")
+        .effectivePeriod("2024-01-15", "2024-01-16")
+        .build();
+      expect(report.effectivePeriod?.start).toBe("2024-01-15");
+      expect(report.effectiveDateTime).toBeUndefined();
+    });
   });
 });

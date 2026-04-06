@@ -5,11 +5,12 @@ import {
   MedicationStatementBuilder,
   FHIRBuilder,
   CodeSystems,
+  ValidationError,
 } from "../src/index.js";
 
 describe("MedicationStatementBuilder", () => {
   it("should create a MedicationStatement resource with defaults", () => {
-    const ms = new MedicationStatementBuilder().build();
+    const ms = new MedicationStatementBuilder().subject("Patient/test").build();
     expect(ms.resourceType).toBe("MedicationStatement");
     expect(ms.status).toBe("active");
     expect(ms.id).toBeDefined();
@@ -24,7 +25,7 @@ describe("MedicationStatementBuilder", () => {
   // --- Required Fields ---
 
   it("should set status", () => {
-    const ms = new MedicationStatementBuilder().status("completed").build();
+    const ms = new MedicationStatementBuilder().subject("Patient/test").status("completed").build();
     expect(ms.status).toBe("completed");
   });
 
@@ -39,6 +40,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set medication by code", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .medicationCode("83367", CodeSystems.RXNORM, "atorvastatin")
       .build();
     expect(ms.medicationCodeableConcept?.coding?.[0]?.code).toBe("83367");
@@ -47,6 +49,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set medication by NDC (shorthand)", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .medicationByNDC("0069-0151-01", "Atorvastatin 10mg")
       .build();
     expect(ms.medicationCodeableConcept?.coding?.[0]?.code).toBe("0069-0151-01");
@@ -56,6 +59,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set medication by RxNorm (shorthand)", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .medicationByRxNorm("83367", "atorvastatin")
       .build();
     expect(ms.medicationCodeableConcept?.coding?.[0]?.system).toBe(CodeSystems.RXNORM);
@@ -63,6 +67,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add additional coding (enrichment pattern)", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .medicationByNDC("0069-0151-01", "Atorvastatin 10mg")
       .addCoding({ system: CodeSystems.RXNORM, code: "83367", display: "atorvastatin" })
       .build();
@@ -74,6 +79,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add coding even when no medication set yet", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .addCoding({ system: CodeSystems.RXNORM, code: "83367" })
       .build();
     expect(ms.medicationCodeableConcept?.coding).toHaveLength(1);
@@ -81,6 +87,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set medication reference", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .medicationReference("Medication/med-1")
       .build();
     expect(ms.medicationReference?.reference).toBe("Medication/med-1");
@@ -90,6 +97,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set context", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .context("Encounter/enc-1")
       .build();
     expect(ms.context?.reference).toBe("Encounter/enc-1");
@@ -97,6 +105,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set effectiveDateTime", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .effectiveDateTime("2024-01-15")
       .build();
     expect(ms.effectiveDateTime).toBe("2024-01-15");
@@ -104,6 +113,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set effectivePeriod", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .effectivePeriod("2024-01-01", "2024-06-30")
       .build();
     expect(ms.effectivePeriod?.start).toBe("2024-01-01");
@@ -112,6 +122,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set dateAsserted", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .dateAsserted("2024-01-15")
       .build();
     expect(ms.dateAsserted).toBe("2024-01-15");
@@ -119,6 +130,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set informationSource", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .informationSource("Patient/123")
       .build();
     expect(ms.informationSource?.reference).toBe("Patient/123");
@@ -128,6 +140,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add reason codes", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .reasonCode("E11.9", CodeSystems.ICD10CM, "Type 2 diabetes")
       .build();
     expect(ms.reasonCode).toHaveLength(1);
@@ -136,6 +149,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add reason references", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .reasonReference("Condition/cond-1")
       .build();
     expect(ms.reasonReference?.[0]?.reference).toBe("Condition/cond-1");
@@ -145,6 +159,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add notes", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .note("Patient reports taking medication as prescribed")
       .build();
     expect(ms.note?.[0]?.text).toBe("Patient reports taking medication as prescribed");
@@ -152,6 +167,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should set category", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .category("inpatient")
       .build();
     expect(ms.category?.coding?.[0]?.code).toBe("inpatient");
@@ -161,6 +177,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add dosage with text", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .dosage({ text: "Take 1 tablet daily" })
       .build();
     expect(ms.dosage).toHaveLength(1);
@@ -169,6 +186,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add dosage with route", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .dosage({ route: { code: "26643006", display: "Oral" } })
       .build();
     expect(ms.dosage?.[0]?.route?.coding?.[0]?.code).toBe("26643006");
@@ -177,6 +195,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add dosage with dose quantity", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .dosage({
         doseQuantity: { value: 10, unit: "mg" },
       })
@@ -187,6 +206,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add dosage with timing", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .dosage({
         timing: { frequency: 1, period: 1, periodUnit: "d" },
       })
@@ -198,6 +218,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add dosage with asNeeded", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .dosage({ asNeeded: true })
       .build();
     expect(ms.dosage?.[0]?.asNeededBoolean).toBe(true);
@@ -205,6 +226,7 @@ describe("MedicationStatementBuilder", () => {
 
   it("should add multiple dosage instructions", () => {
     const ms = new MedicationStatementBuilder()
+      .subject("Patient/test")
       .dosage({ text: "Morning dose" })
       .dosage({ text: "Evening dose" })
       .build();
@@ -249,5 +271,51 @@ describe("MedicationStatementBuilder", () => {
       .toJSON();
     const parsed = JSON.parse(json);
     expect(parsed.resourceType).toBe("MedicationStatement");
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when subject is missing", () => {
+      expect(() => new MedicationStatementBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should not throw when subject is provided", () => {
+      expect(() => new MedicationStatementBuilder().subject("Patient/123").build()).not.toThrow();
+    });
+  });
+
+  // --- Choice Types ---
+
+  describe("choice types", () => {
+    it("effectivePeriod should clear effectiveDateTime", () => {
+      const med = new MedicationStatementBuilder()
+        .subject("Patient/test")
+        .effectiveDateTime("2024-01-01")
+        .effectivePeriod("2024-01-01", "2024-02-01")
+        .build();
+      expect(med.effectivePeriod?.start).toBe("2024-01-01");
+      expect(med.effectiveDateTime).toBeUndefined();
+    });
+
+    it("medicationReference should clear medicationCodeableConcept", () => {
+      const med = new MedicationStatementBuilder()
+        .subject("Patient/test")
+        .medicationByNDC("0069-0151-01")
+        .medicationReference("Medication/med-1")
+        .build();
+      expect(med.medicationReference?.reference).toBe("Medication/med-1");
+      expect(med.medicationCodeableConcept).toBeUndefined();
+    });
+
+    it("medicationCode should clear medicationReference", () => {
+      const med = new MedicationStatementBuilder()
+        .subject("Patient/test")
+        .medicationReference("Medication/med-1")
+        .medicationByNDC("0069-0151-01")
+        .build();
+      expect(med.medicationCodeableConcept?.coding?.[0]?.code).toBe("0069-0151-01");
+      expect(med.medicationReference).toBeUndefined();
+    });
   });
 });

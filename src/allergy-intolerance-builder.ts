@@ -28,6 +28,7 @@ import {
   buildReference,
 } from "./helpers.js";
 import { CodeSystems } from "./code-systems.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   Annotation,
   CodeableConcept,
@@ -89,6 +90,14 @@ export class AllergyIntoleranceBuilder extends ResourceBuilder<AllergyIntoleranc
   constructor() {
     super("AllergyIntolerance");
     (this.resource as AllergyIntoleranceResource).patient = { reference: "" };
+  }
+
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    if (!this.resource.patient?.reference) {
+      errors.push({ field: "patient", message: "patient is required", severity: "error" });
+    }
+    return errors;
   }
 
   // --- Clinical & Verification Status ---
@@ -168,18 +177,21 @@ export class AllergyIntoleranceBuilder extends ResourceBuilder<AllergyIntoleranc
 
   /** Set onset date/time. */
   onsetDateTime(dateTime: string): this {
+    this.clearChoiceType(["onsetDateTime", "onsetAge", "onsetString"], "onsetDateTime");
     this.resource.onsetDateTime = dateTime;
     return this;
   }
 
   /** Set onset as an age. */
   onsetAge(value: number, unit: string): this {
+    this.clearChoiceType(["onsetDateTime", "onsetAge", "onsetString"], "onsetAge");
     this.resource.onsetAge = buildQuantity(value, unit);
     return this;
   }
 
   /** Set onset as a free-text string. */
   onsetString(text: string): this {
+    this.clearChoiceType(["onsetDateTime", "onsetAge", "onsetString"], "onsetString");
     this.resource.onsetString = text;
     return this;
   }

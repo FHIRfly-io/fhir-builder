@@ -321,6 +321,7 @@ describe("BundleBuilder", () => {
   it("should preserve references to resources not in bundle", () => {
     const obs = new ObservationBuilder()
       .id("obs-1")
+      .loincCode("8302-2")
       .subject("Patient/external-patient")
       .build();
 

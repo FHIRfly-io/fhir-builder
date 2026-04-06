@@ -5,11 +5,20 @@ import {
   ExplanationOfBenefitBuilder,
   FHIRBuilder,
   CodeSystems,
+  ValidationError,
 } from "../src/index.js";
+
+// Helper to add all 4 required fields for EOB
+const eobRequired = () =>
+  new ExplanationOfBenefitBuilder()
+    .patient("Patient/test")
+    .insurer("Organization/ins")
+    .provider("Organization/prov")
+    .insurance("Coverage/cov");
 
 describe("ExplanationOfBenefitBuilder", () => {
   it("should create an EOB resource with defaults", () => {
-    const eob = new ExplanationOfBenefitBuilder().build();
+    const eob = eobRequired().build();
     expect(eob.resourceType).toBe("ExplanationOfBenefit");
     expect(eob.status).toBe("active");
     expect(eob.use).toBe("claim");
@@ -26,32 +35,38 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Required Fields ---
 
   it("should set status", () => {
-    const eob = new ExplanationOfBenefitBuilder().status("cancelled").build();
+    const eob = eobRequired().status("cancelled").build();
     expect(eob.status).toBe("cancelled");
   });
 
   it("should set type", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .type("professional", undefined, "Professional")
       .build();
     expect(eob.type.coding?.[0]?.code).toBe("professional");
   });
 
   it("should set use", () => {
-    const eob = new ExplanationOfBenefitBuilder().use("preauthorization").build();
+    const eob = eobRequired().use("preauthorization").build();
     expect(eob.use).toBe("preauthorization");
   });
 
   it("should set patient", () => {
     const eob = new ExplanationOfBenefitBuilder()
       .patient("Patient/123")
+      .insurer("Organization/ins")
+      .provider("Organization/prov")
+      .insurance("Coverage/cov")
       .build();
     expect(eob.patient.reference).toBe("Patient/123");
   });
 
   it("should set insurer", () => {
     const eob = new ExplanationOfBenefitBuilder()
+      .patient("Patient/test")
       .insurer("Organization/ins-co", "Acme Insurance")
+      .provider("Organization/prov")
+      .insurance("Coverage/cov")
       .build();
     expect(eob.insurer.reference).toBe("Organization/ins-co");
     expect(eob.insurer.display).toBe("Acme Insurance");
@@ -59,18 +74,21 @@ describe("ExplanationOfBenefitBuilder", () => {
 
   it("should set provider", () => {
     const eob = new ExplanationOfBenefitBuilder()
+      .patient("Patient/test")
+      .insurer("Organization/ins")
       .provider("Organization/hosp-1")
+      .insurance("Coverage/cov")
       .build();
     expect(eob.provider.reference).toBe("Organization/hosp-1");
   });
 
   it("should set outcome", () => {
-    const eob = new ExplanationOfBenefitBuilder().outcome("error").build();
+    const eob = eobRequired().outcome("error").build();
     expect(eob.outcome).toBe("error");
   });
 
   it("should set created date", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .created("2024-01-20T00:00:00Z")
       .build();
     expect(eob.created).toBe("2024-01-20T00:00:00Z");
@@ -80,6 +98,9 @@ describe("ExplanationOfBenefitBuilder", () => {
 
   it("should add insurance entries", () => {
     const eob = new ExplanationOfBenefitBuilder()
+      .patient("Patient/test")
+      .insurer("Organization/ins")
+      .provider("Organization/prov")
       .insurance("Coverage/cov-1", true)
       .build();
     expect(eob.insurance).toHaveLength(1);
@@ -89,6 +110,9 @@ describe("ExplanationOfBenefitBuilder", () => {
 
   it("should add multiple insurance entries", () => {
     const eob = new ExplanationOfBenefitBuilder()
+      .patient("Patient/test")
+      .insurer("Organization/ins")
+      .provider("Organization/prov")
       .insurance("Coverage/primary", true)
       .insurance("Coverage/secondary", false)
       .build();
@@ -99,7 +123,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Billable Period ---
 
   it("should set billable period", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .billablePeriod("2024-01-01", "2024-01-31")
       .build();
     expect(eob.billablePeriod?.start).toBe("2024-01-01");
@@ -109,7 +133,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Items ---
 
   it("should add a claim line item", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .item({
         sequence: 1,
         productOrService: { code: "99213", system: CodeSystems.CPT, display: "Office visit" },
@@ -129,7 +153,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   });
 
   it("should add item with adjudication", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .item({
         sequence: 1,
         productOrService: { code: "99213", system: CodeSystems.CPT },
@@ -147,7 +171,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   });
 
   it("should add item with sequence references", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .item({
         sequence: 1,
         productOrService: { code: "99213", system: CodeSystems.CPT },
@@ -161,7 +185,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   });
 
   it("should add multiple items", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .item({
         sequence: 1,
         productOrService: { code: "99213", system: CodeSystems.CPT },
@@ -177,7 +201,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Totals ---
 
   it("should add totals", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .total("submitted", 150.0)
       .total("benefit", 120.0)
       .total("copay", 30.0)
@@ -191,7 +215,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Payment ---
 
   it("should set payment", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .payment({
         type: { code: "complete" },
         date: "2024-02-01",
@@ -206,7 +230,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Care Team ---
 
   it("should add care team members", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .careTeam(1, "Practitioner/dr-smith", "primary")
       .careTeam(2, "Practitioner/dr-jones", "assist")
       .build();
@@ -219,7 +243,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Diagnosis ---
 
   it("should add diagnoses", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .diagnosis(1, "E11.9", CodeSystems.ICD10CM, "Type 2 diabetes", "principal")
       .build();
     expect(eob.diagnosis).toHaveLength(1);
@@ -231,7 +255,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Procedure ---
 
   it("should add procedures", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .procedure(1, "27447", CodeSystems.CPT, "TKR", "2024-01-15")
       .build();
     expect(eob.procedure).toHaveLength(1);
@@ -243,7 +267,7 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Supporting Info ---
 
   it("should add supporting info", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .supportingInfo(1, "clmrecvddate", undefined, "2024-01-20")
       .build();
     expect(eob.supportingInfo).toHaveLength(1);
@@ -254,19 +278,19 @@ describe("ExplanationOfBenefitBuilder", () => {
   // --- Additional ---
 
   it("should set priority", () => {
-    const eob = new ExplanationOfBenefitBuilder().priority("normal").build();
+    const eob = eobRequired().priority("normal").build();
     expect(eob.priority?.coding?.[0]?.code).toBe("normal");
   });
 
   it("should set facility", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .facility("Location/hosp-1")
       .build();
     expect(eob.facility?.reference).toBe("Location/hosp-1");
   });
 
   it("should set claim reference", () => {
-    const eob = new ExplanationOfBenefitBuilder()
+    const eob = eobRequired()
       .claim("Claim/claim-1")
       .build();
     expect(eob.claim?.reference).toBe("Claim/claim-1");
@@ -326,5 +350,53 @@ describe("ExplanationOfBenefitBuilder", () => {
     const parsed = JSON.parse(json);
     expect(parsed.resourceType).toBe("ExplanationOfBenefit");
     expect(parsed.insurance).toHaveLength(1);
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when required fields are missing", () => {
+      expect(() => new ExplanationOfBenefitBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should include all missing fields in validation errors", () => {
+      try {
+        new ExplanationOfBenefitBuilder().build();
+      } catch (e) {
+        expect(e).toBeInstanceOf(ValidationError);
+        const fields = (e as ValidationError).errors.map(err => err.field);
+        expect(fields).toContain("patient");
+        expect(fields).toContain("insurer");
+        expect(fields).toContain("provider");
+        expect(fields).toContain("insurance");
+      }
+    });
+
+    it("should not throw when all required fields are provided", () => {
+      expect(() =>
+        new ExplanationOfBenefitBuilder()
+          .patient("Patient/123")
+          .insurer("Organization/ins")
+          .provider("Organization/prov")
+          .insurance("Coverage/cov")
+          .build()
+      ).not.toThrow();
+    });
+  });
+
+  // --- Missing field tests ---
+
+  it("should set prescription reference", () => {
+    const eob = eobRequired()
+      .prescription("MedicationRequest/rx-1")
+      .build();
+    expect(eob.prescription?.reference).toBe("MedicationRequest/rx-1");
+  });
+
+  it("should set claimResponse reference", () => {
+    const eob = eobRequired()
+      .claimResponse("ClaimResponse/cr-1")
+      .build();
+    expect(eob.claimResponse?.reference).toBe("ClaimResponse/cr-1");
   });
 });

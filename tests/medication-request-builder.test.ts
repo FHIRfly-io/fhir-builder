@@ -5,11 +5,12 @@ import {
   MedicationRequestBuilder,
   FHIRBuilder,
   CodeSystems,
+  ValidationError,
 } from "../src/index.js";
 
 describe("MedicationRequestBuilder", () => {
   it("should create a MedicationRequest resource with defaults", () => {
-    const rx = new MedicationRequestBuilder().build();
+    const rx = new MedicationRequestBuilder().subject("Patient/test").build();
     expect(rx.resourceType).toBe("MedicationRequest");
     expect(rx.status).toBe("active");
     expect(rx.intent).toBe("order");
@@ -25,12 +26,12 @@ describe("MedicationRequestBuilder", () => {
   // --- Required Fields ---
 
   it("should set status", () => {
-    const rx = new MedicationRequestBuilder().status("draft").build();
+    const rx = new MedicationRequestBuilder().subject("Patient/test").status("draft").build();
     expect(rx.status).toBe("draft");
   });
 
   it("should set intent", () => {
-    const rx = new MedicationRequestBuilder().intent("plan").build();
+    const rx = new MedicationRequestBuilder().subject("Patient/test").intent("plan").build();
     expect(rx.intent).toBe("plan");
   });
 
@@ -45,6 +46,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set medication by NDC", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .medicationByNDC("0069-0151-01", "Atorvastatin 10mg")
       .build();
     expect(rx.medicationCodeableConcept?.coding?.[0]?.system).toBe(CodeSystems.NDC);
@@ -52,6 +54,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set medication by RxNorm", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .medicationByRxNorm("83367", "atorvastatin")
       .build();
     expect(rx.medicationCodeableConcept?.coding?.[0]?.system).toBe(CodeSystems.RXNORM);
@@ -60,6 +63,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should add additional coding (enrichment pattern)", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .medicationByNDC("0069-0151-01")
       .addCoding({ system: CodeSystems.RXNORM, code: "83367" })
       .build();
@@ -68,6 +72,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set medication reference", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .medicationReference("Medication/med-1")
       .build();
     expect(rx.medicationReference?.reference).toBe("Medication/med-1");
@@ -77,6 +82,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set encounter", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .encounter("Encounter/enc-1")
       .build();
     expect(rx.encounter?.reference).toBe("Encounter/enc-1");
@@ -84,6 +90,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set authoredOn", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .authoredOn("2024-01-15")
       .build();
     expect(rx.authoredOn).toBe("2024-01-15");
@@ -91,6 +98,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set requester", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .requester("Practitioner/dr-smith", "Dr. Smith")
       .build();
     expect(rx.requester?.reference).toBe("Practitioner/dr-smith");
@@ -100,12 +108,13 @@ describe("MedicationRequestBuilder", () => {
   // --- Priority & Category ---
 
   it("should set priority", () => {
-    const rx = new MedicationRequestBuilder().priority("urgent").build();
+    const rx = new MedicationRequestBuilder().subject("Patient/test").priority("urgent").build();
     expect(rx.priority).toBe("urgent");
   });
 
   it("should add category", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .category("outpatient")
       .build();
     expect(rx.category).toHaveLength(1);
@@ -116,6 +125,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should add reason codes", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .reasonCode("E78.5", CodeSystems.ICD10CM, "Hyperlipidemia")
       .build();
     expect(rx.reasonCode?.[0]?.coding?.[0]?.code).toBe("E78.5");
@@ -123,6 +133,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should add reason references", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .reasonReference("Condition/cond-1")
       .build();
     expect(rx.reasonReference?.[0]?.reference).toBe("Condition/cond-1");
@@ -132,6 +143,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should add dosage instruction", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .dosageInstruction({
         text: "Take 1 tablet daily at bedtime",
         route: { code: "26643006", display: "Oral" },
@@ -148,6 +160,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set dispense request", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .dispenseRequest({
         quantity: { value: 30, unit: "tablets" },
         expectedSupplyDuration: { value: 30, unit: "days" },
@@ -163,6 +176,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set partial dispense request", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .dispenseRequest({ quantity: { value: 90, unit: "tablets" } })
       .build();
     expect(rx.dispenseRequest?.quantity?.value).toBe(90);
@@ -173,6 +187,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set substitution allowed", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .substitution(true)
       .build();
     expect(rx.substitution?.allowedBoolean).toBe(true);
@@ -180,6 +195,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should set substitution not allowed with reason", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .substitution(false, {
         code: "G",
         system: "http://terminology.hl7.org/CodeSystem/v3-ActReason",
@@ -194,6 +210,7 @@ describe("MedicationRequestBuilder", () => {
 
   it("should add notes", () => {
     const rx = new MedicationRequestBuilder()
+      .subject("Patient/test")
       .note("Brand name required per patient preference")
       .build();
     expect(rx.note?.[0]?.text).toBe("Brand name required per patient preference");
@@ -242,5 +259,31 @@ describe("MedicationRequestBuilder", () => {
     const parsed = JSON.parse(json);
     expect(parsed.resourceType).toBe("MedicationRequest");
     expect(parsed.intent).toBe("order");
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when subject is missing", () => {
+      expect(() => new MedicationRequestBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should not throw when subject is provided", () => {
+      expect(() => new MedicationRequestBuilder().subject("Patient/123").build()).not.toThrow();
+    });
+  });
+
+  // --- Choice Types ---
+
+  describe("choice types", () => {
+    it("medicationReference should clear medicationCodeableConcept", () => {
+      const rx = new MedicationRequestBuilder()
+        .subject("Patient/test")
+        .medicationByRxNorm("83367")
+        .medicationReference("Medication/med-1")
+        .build();
+      expect(rx.medicationReference?.reference).toBe("Medication/med-1");
+      expect(rx.medicationCodeableConcept).toBeUndefined();
+    });
   });
 });

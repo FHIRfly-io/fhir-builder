@@ -6,11 +6,12 @@ import {
   FHIRBuilder,
   CodeSystems,
   buildQuantity,
+  ValidationError,
 } from "../src/index.js";
 
 describe("ObservationBuilder", () => {
   it("should create an Observation resource with defaults", () => {
-    const obs = new ObservationBuilder().build();
+    const obs = new ObservationBuilder().loincCode("8302-2").build();
     expect(obs.resourceType).toBe("Observation");
     expect(obs.status).toBe("final");
     expect(obs.id).toBeDefined();
@@ -25,7 +26,7 @@ describe("ObservationBuilder", () => {
   // --- Required Fields ---
 
   it("should set status", () => {
-    const obs = new ObservationBuilder().status("preliminary").build();
+    const obs = new ObservationBuilder().loincCode("8302-2").status("preliminary").build();
     expect(obs.status).toBe("preliminary");
   });
 
@@ -50,6 +51,7 @@ describe("ObservationBuilder", () => {
 
   it("should add category with default system", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .category("vital-signs")
       .build();
     expect(obs.category).toHaveLength(1);
@@ -61,6 +63,7 @@ describe("ObservationBuilder", () => {
 
   it("should add multiple categories", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .category("vital-signs")
       .category("laboratory")
       .build();
@@ -71,6 +74,7 @@ describe("ObservationBuilder", () => {
 
   it("should set subject", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .subject("Patient/123", "Jane Doe")
       .build();
     expect(obs.subject?.reference).toBe("Patient/123");
@@ -79,6 +83,7 @@ describe("ObservationBuilder", () => {
 
   it("should set encounter", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .encounter("Encounter/enc-1")
       .build();
     expect(obs.encounter?.reference).toBe("Encounter/enc-1");
@@ -88,6 +93,7 @@ describe("ObservationBuilder", () => {
 
   it("should set effectiveDateTime", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .effectiveDateTime("2024-01-15T10:30:00Z")
       .build();
     expect(obs.effectiveDateTime).toBe("2024-01-15T10:30:00Z");
@@ -95,6 +101,7 @@ describe("ObservationBuilder", () => {
 
   it("should set effectivePeriod", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .effectivePeriod("2024-01-15", "2024-01-16")
       .build();
     expect(obs.effectivePeriod?.start).toBe("2024-01-15");
@@ -103,6 +110,7 @@ describe("ObservationBuilder", () => {
 
   it("should set issued", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .issued("2024-01-15T11:00:00Z")
       .build();
     expect(obs.issued).toBe("2024-01-15T11:00:00Z");
@@ -112,6 +120,7 @@ describe("ObservationBuilder", () => {
 
   it("should add performers", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .performer("Practitioner/dr-smith", "Dr. Smith")
       .build();
     expect(obs.performer).toHaveLength(1);
@@ -122,6 +131,7 @@ describe("ObservationBuilder", () => {
 
   it("should set valueQuantity with UCUM", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .valueQuantity(170, "cm", "cm")
       .build();
     expect(obs.valueQuantity?.value).toBe(170);
@@ -132,18 +142,19 @@ describe("ObservationBuilder", () => {
 
   it("should set valueCodeableConcept", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .valueCodeableConcept("260373001", CodeSystems.SNOMED, "Detected")
       .build();
     expect(obs.valueCodeableConcept?.coding?.[0]?.code).toBe("260373001");
   });
 
   it("should set valueString", () => {
-    const obs = new ObservationBuilder().valueString("Positive").build();
+    const obs = new ObservationBuilder().loincCode("8302-2").valueString("Positive").build();
     expect(obs.valueString).toBe("Positive");
   });
 
   it("should set valueBoolean", () => {
-    const obs = new ObservationBuilder().valueBoolean(true).build();
+    const obs = new ObservationBuilder().loincCode("8302-2").valueBoolean(true).build();
     expect(obs.valueBoolean).toBe(true);
   });
 
@@ -151,6 +162,7 @@ describe("ObservationBuilder", () => {
 
   it("should add interpretation with default system", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .interpretation("H", undefined, "High")
       .build();
     expect(obs.interpretation).toHaveLength(1);
@@ -166,6 +178,7 @@ describe("ObservationBuilder", () => {
     const low = buildQuantity(100, "mg/dL");
     const high = buildQuantity(200, "mg/dL");
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .referenceRange(low, high, "Normal range")
       .build();
     expect(obs.referenceRange).toHaveLength(1);
@@ -176,6 +189,7 @@ describe("ObservationBuilder", () => {
 
   it("should add reference range with only text", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .referenceRange(undefined, undefined, "< 200 mg/dL")
       .build();
     expect(obs.referenceRange?.[0]?.text).toBe("< 200 mg/dL");
@@ -185,6 +199,7 @@ describe("ObservationBuilder", () => {
 
   it("should add notes", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .note("Patient was fasting")
       .build();
     expect(obs.note).toHaveLength(1);
@@ -222,6 +237,7 @@ describe("ObservationBuilder", () => {
 
   it("should set bodySite", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .bodySite("368209003", CodeSystems.SNOMED, "Right arm")
       .build();
     expect(obs.bodySite?.coding?.[0]?.code).toBe("368209003");
@@ -229,6 +245,7 @@ describe("ObservationBuilder", () => {
 
   it("should set method", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .method("258104002", CodeSystems.SNOMED, "Measured")
       .build();
     expect(obs.method?.coding?.[0]?.code).toBe("258104002");
@@ -236,6 +253,7 @@ describe("ObservationBuilder", () => {
 
   it("should set dataAbsentReason", () => {
     const obs = new ObservationBuilder()
+      .loincCode("8302-2")
       .dataAbsentReason("not-performed", "Not Performed")
       .build();
     expect(obs.dataAbsentReason?.coding?.[0]?.code).toBe("not-performed");
@@ -281,5 +299,60 @@ describe("ObservationBuilder", () => {
     const parsed = JSON.parse(json);
     expect(parsed.resourceType).toBe("Observation");
     expect(parsed.code.coding[0].code).toBe("8302-2");
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when code is missing", () => {
+      expect(() => new ObservationBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should include code in validation errors", () => {
+      try {
+        new ObservationBuilder().build();
+      } catch (e) {
+        expect(e).toBeInstanceOf(ValidationError);
+        expect((e as ValidationError).errors.some(err => err.field === "code")).toBe(true);
+      }
+    });
+
+    it("should not throw when code is provided", () => {
+      expect(() => new ObservationBuilder().loincCode("8302-2").build()).not.toThrow();
+    });
+  });
+
+  // --- Choice Types ---
+
+  describe("choice types", () => {
+    it("effectivePeriod should clear effectiveDateTime", () => {
+      const obs = new ObservationBuilder()
+        .loincCode("8302-2")
+        .effectiveDateTime("2024-01-15")
+        .effectivePeriod("2024-01-15", "2024-01-16")
+        .build();
+      expect(obs.effectivePeriod?.start).toBe("2024-01-15");
+      expect(obs.effectiveDateTime).toBeUndefined();
+    });
+
+    it("valueString should clear valueQuantity", () => {
+      const obs = new ObservationBuilder()
+        .loincCode("8302-2")
+        .valueQuantity(170, "cm")
+        .valueString("Positive")
+        .build();
+      expect(obs.valueString).toBe("Positive");
+      expect(obs.valueQuantity).toBeUndefined();
+    });
+
+    it("valueBoolean should clear valueString", () => {
+      const obs = new ObservationBuilder()
+        .loincCode("8302-2")
+        .valueString("test")
+        .valueBoolean(true)
+        .build();
+      expect(obs.valueBoolean).toBe(true);
+      expect(obs.valueString).toBeUndefined();
+    });
   });
 });

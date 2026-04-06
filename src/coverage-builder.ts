@@ -22,6 +22,7 @@ import {
   buildReference,
 } from "./helpers.js";
 import { CodeSystems } from "./code-systems.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   CodeableConcept,
   Period,
@@ -71,6 +72,17 @@ export class CoverageBuilder extends ResourceBuilder<CoverageResource> {
     (this.resource as CoverageResource).status = "active";
     (this.resource as CoverageResource).beneficiary = { reference: "" };
     (this.resource as CoverageResource).payor = [];
+  }
+
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    if (!this.resource.beneficiary?.reference) {
+      errors.push({ field: "beneficiary", message: "beneficiary is required", severity: "error" });
+    }
+    if (!(this.resource as CoverageResource).payor?.length) {
+      errors.push({ field: "payor", message: "at least one payor is required", severity: "error" });
+    }
+    return errors;
   }
 
   // --- Required Fields ---

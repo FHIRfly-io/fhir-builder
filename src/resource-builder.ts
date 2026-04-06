@@ -15,6 +15,8 @@
 
 import type { Extension, Meta, Resource } from "./types.js";
 import { generateId, cleanObject } from "./helpers.js";
+import { ValidationError } from "./errors.js";
+import type { ValidationIssue } from "./errors.js";
 
 export abstract class ResourceBuilder<T extends Resource> {
   protected resource: Partial<T> & { resourceType: string };
@@ -60,10 +62,36 @@ export abstract class ResourceBuilder<T extends Resource> {
   }
 
   /**
+   * Override in subclasses to return validation issues for required fields.
+   * Called by `build()` before constructing the resource.
+   */
+  protected getValidationErrors(): ValidationIssue[] {
+    return [];
+  }
+
+  /**
+   * Clear all choice-type fields except the one being kept.
+   * Used internally by setters to enforce FHIR choice-type mutual exclusion.
+   */
+  protected clearChoiceType(fields: string[], keep: string): void {
+    for (const field of fields) {
+      if (field !== keep) {
+        delete (this.resource as Record<string, unknown>)[field];
+      }
+    }
+  }
+
+  /**
    * Build the FHIR resource. Auto-generates an id if none was set.
+   * Validates required fields and throws `ValidationError` if any are missing.
    * Returns a clean object with no undefined/null values.
    */
   build(): T {
+    const issues = this.getValidationErrors();
+    const errors = issues.filter((i) => i.severity === "error");
+    if (errors.length > 0) {
+      throw new ValidationError(this.resource.resourceType, errors);
+    }
     if (!this.resource.id) {
       this.resource.id = generateId();
     }

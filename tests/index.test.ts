@@ -1,7 +1,7 @@
 // Copyright 2026 FHIRfly.io LLC. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE file in the project root.
 import { describe, it, expect } from "vitest";
-import { FHIRBuilder, CodeSystems } from "../src/index.js";
+import { FHIRBuilder, CodeSystems, ValidationError, BuilderError, buildDosage } from "../src/index.js";
 
 describe("@fhirfly-io/fhir-builder", () => {
   it("should export FHIRBuilder class", () => {
@@ -42,5 +42,15 @@ describe("@fhirfly-io/fhir-builder", () => {
       expect(typeof value).toBe("string");
       expect(key).toBeTruthy();
     }
+  });
+
+  it("should export ValidationError and BuilderError", () => {
+    expect(ValidationError).toBeDefined();
+    expect(BuilderError).toBeDefined();
+  });
+
+  it("should export buildDosage helper", () => {
+    expect(buildDosage).toBeDefined();
+    expect(typeof buildDosage).toBe("function");
   });
 });

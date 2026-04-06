@@ -28,6 +28,7 @@ import {
   buildPeriod,
   buildReference,
 } from "./helpers.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   CodeableConcept,
   Identifier,
@@ -163,6 +164,24 @@ export class ExplanationOfBenefitBuilder extends ResourceBuilder<ExplanationOfBe
     r.provider = { reference: "" };
     r.outcome = "complete";
     r.insurance = [];
+  }
+
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    const r = this.resource as ExplanationOfBenefitResource;
+    if (!r.patient?.reference) {
+      errors.push({ field: "patient", message: "patient is required", severity: "error" });
+    }
+    if (!r.insurer?.reference) {
+      errors.push({ field: "insurer", message: "insurer is required", severity: "error" });
+    }
+    if (!r.provider?.reference) {
+      errors.push({ field: "provider", message: "provider is required", severity: "error" });
+    }
+    if (!r.insurance?.length) {
+      errors.push({ field: "insurance", message: "at least one insurance is required", severity: "error" });
+    }
+    return errors;
   }
 
   // --- Required Fields ---

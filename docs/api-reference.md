@@ -716,4 +716,36 @@ import { generateId, buildCodeableConcept, buildReference } from '@fhirfly-io/fh
 | `buildReference(resourceOrRef, display?)` | Build a `Reference` from a resource or string |
 | `buildPeriod(start?, end?)` | Build a `Period` |
 | `buildQuantity(value, unit, systemOrCode?, code?)` | Build a `Quantity` (defaults to UCUM) |
-| `cleanObject(obj)` | Remove `undefined`/`null` values (shallow) |
+| `buildDosage(input)` | Build a FHIR `Dosage` from a `DosageInput` |
+| `cleanObject(obj)` | Remove `undefined`/`null` values (deep) |
+
+---
+
+## Error Types
+
+```typescript
+import { BuilderError, ValidationError } from '@fhirfly-io/fhir-builder';
+```
+
+| Class | Description |
+|-------|-------------|
+| `BuilderError` | Base error class for all builder errors. Extends `Error`. |
+| `ValidationError` | Thrown by `build()` when required fields are missing. Extends `BuilderError`. |
+
+### ValidationError
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `resourceType` | `string` | The FHIR resource type that failed validation |
+| `errors` | `ValidationIssue[]` | Structured array of validation issues |
+| `message` | `string` | Human-readable error message with field details |
+
+### ValidationIssue
+
+```typescript
+interface ValidationIssue {
+  field: string;
+  message: string;
+  severity: "error" | "warning";
+}
+```

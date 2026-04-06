@@ -20,15 +20,18 @@ import { ResourceBuilder } from "./resource-builder.js";
 import {
   addCodingToCodeableConcept,
   buildCodeableConcept,
+  buildDosage,
   buildPeriod,
   buildQuantity,
   buildReference,
 } from "./helpers.js";
 import { CodeSystems } from "./code-systems.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   Annotation,
   CodeableConcept,
   Coding,
+  Dosage,
   DosageInput,
   Identifier,
   Period,
@@ -36,7 +39,6 @@ import type {
   Reference,
   Resource,
 } from "./types.js";
-import type { Dosage } from "./medication-statement-builder.js";
 
 // ---------------------------------------------------------------------------
 // MedicationRequest Resource Type
@@ -109,6 +111,14 @@ export class MedicationRequestBuilder extends ResourceBuilder<MedicationRequestR
     (this.resource as MedicationRequestResource).subject = { reference: "" };
   }
 
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    if (!this.resource.subject?.reference) {
+      errors.push({ field: "subject", message: "subject is required", severity: "error" });
+    }
+    return errors;
+  }
+
   // --- Required Fields ---
 
   /** Set request status (required). */
@@ -133,6 +143,7 @@ export class MedicationRequestBuilder extends ResourceBuilder<MedicationRequestR
 
   /** Set medication by code and system. */
   medicationCode(code: string, system: string, display?: string): this {
+    this.clearChoiceType(["medicationCodeableConcept", "medicationReference"], "medicationCodeableConcept");
     this.resource.medicationCodeableConcept = buildCodeableConcept(code, system, display);
     return this;
   }
@@ -149,6 +160,7 @@ export class MedicationRequestBuilder extends ResourceBuilder<MedicationRequestR
 
   /** Add an additional coding to the medication. */
   addCoding(coding: Coding): this {
+    this.clearChoiceType(["medicationCodeableConcept", "medicationReference"], "medicationCodeableConcept");
     if (!this.resource.medicationCodeableConcept) {
       this.resource.medicationCodeableConcept = { coding: [] };
     }
@@ -161,6 +173,7 @@ export class MedicationRequestBuilder extends ResourceBuilder<MedicationRequestR
 
   /** Set medication as a reference to a Medication resource. */
   medicationReference(ref: Resource | string, display?: string): this {
+    this.clearChoiceType(["medicationCodeableConcept", "medicationReference"], "medicationReference");
     this.resource.medicationReference = buildReference(ref, display);
     return this;
   }
@@ -229,38 +242,7 @@ export class MedicationRequestBuilder extends ResourceBuilder<MedicationRequestR
   /** Add a dosage instruction. */
   dosageInstruction(input: DosageInput): this {
     if (!this.resource.dosageInstruction) this.resource.dosageInstruction = [];
-    const d: Dosage = {};
-    if (input.text) d.text = input.text;
-    if (input.route) {
-      d.route = buildCodeableConcept(
-        input.route.code,
-        input.route.system ?? CodeSystems.SNOMED,
-        input.route.display
-      );
-    }
-    if (input.doseQuantity) {
-      d.doseAndRate = [{
-        doseQuantity: buildQuantity(
-          input.doseQuantity.value,
-          input.doseQuantity.unit,
-          input.doseQuantity.system,
-          input.doseQuantity.code
-        ),
-      }];
-    }
-    if (input.timing) {
-      d.timing = {
-        repeat: {
-          ...(input.timing.frequency !== undefined && { frequency: input.timing.frequency }),
-          ...(input.timing.period !== undefined && { period: input.timing.period }),
-          ...(input.timing.periodUnit && { periodUnit: input.timing.periodUnit }),
-        },
-      };
-    }
-    if (input.asNeeded !== undefined) {
-      d.asNeededBoolean = input.asNeeded;
-    }
-    this.resource.dosageInstruction.push(d);
+    this.resource.dosageInstruction.push(buildDosage(input));
     return this;
   }
 

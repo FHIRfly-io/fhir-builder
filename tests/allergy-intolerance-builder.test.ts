@@ -5,11 +5,12 @@ import {
   AllergyIntoleranceBuilder,
   FHIRBuilder,
   CodeSystems,
+  ValidationError,
 } from "../src/index.js";
 
 describe("AllergyIntoleranceBuilder", () => {
   it("should create an AllergyIntolerance resource", () => {
-    const allergy = new AllergyIntoleranceBuilder().build();
+    const allergy = new AllergyIntoleranceBuilder().patient("Patient/test").build();
     expect(allergy.resourceType).toBe("AllergyIntolerance");
     expect(allergy.id).toBeDefined();
   });
@@ -24,6 +25,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set clinicalStatus with correct system", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .clinicalStatus("active")
       .build();
     expect(allergy.clinicalStatus?.coding?.[0]?.code).toBe("active");
@@ -34,6 +36,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set verificationStatus with correct system", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .verificationStatus("confirmed")
       .build();
     expect(allergy.verificationStatus?.coding?.[0]?.code).toBe("confirmed");
@@ -45,12 +48,13 @@ describe("AllergyIntoleranceBuilder", () => {
   // --- Type, Category, Criticality ---
 
   it("should set type", () => {
-    const allergy = new AllergyIntoleranceBuilder().type("allergy").build();
+    const allergy = new AllergyIntoleranceBuilder().patient("Patient/test").type("allergy").build();
     expect(allergy.type).toBe("allergy");
   });
 
   it("should add categories", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .category("medication")
       .category("food")
       .build();
@@ -59,6 +63,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set criticality", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .criticality("high")
       .build();
     expect(allergy.criticality).toBe("high");
@@ -68,6 +73,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set code", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .code("387207008", CodeSystems.SNOMED, "Ibuprofen")
       .build();
     expect(allergy.code?.coding?.[0]?.code).toBe("387207008");
@@ -76,6 +82,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set code via snomedCode shorthand", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .snomedCode("387207008", "Ibuprofen")
       .build();
     expect(allergy.code?.coding?.[0]?.code).toBe("387207008");
@@ -84,6 +91,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set code via rxNormCode shorthand", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .rxNormCode("5640", "Ibuprofen")
       .build();
     expect(allergy.code?.coding?.[0]?.code).toBe("5640");
@@ -101,6 +109,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set encounter", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .encounter("Encounter/enc-1")
       .build();
     expect(allergy.encounter?.reference).toBe("Encounter/enc-1");
@@ -110,6 +119,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set onsetDateTime", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .onsetDateTime("2020-06-15")
       .build();
     expect(allergy.onsetDateTime).toBe("2020-06-15");
@@ -117,6 +127,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set onsetAge", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .onsetAge(25, "years")
       .build();
     expect(allergy.onsetAge?.value).toBe(25);
@@ -125,6 +136,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set onsetString", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .onsetString("Childhood")
       .build();
     expect(allergy.onsetString).toBe("Childhood");
@@ -134,6 +146,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set recordedDate", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .recordedDate("2024-01-15")
       .build();
     expect(allergy.recordedDate).toBe("2024-01-15");
@@ -141,6 +154,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set recorder", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .recorder("Practitioner/dr-smith")
       .build();
     expect(allergy.recorder?.reference).toBe("Practitioner/dr-smith");
@@ -148,6 +162,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set asserter", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .asserter("Patient/123", "Jane Doe")
       .build();
     expect(allergy.asserter?.reference).toBe("Patient/123");
@@ -156,6 +171,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should set lastOccurrence", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .lastOccurrence("2023-12-01")
       .build();
     expect(allergy.lastOccurrence).toBe("2023-12-01");
@@ -165,6 +181,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should add notes", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .note("Patient carries EpiPen")
       .note("Confirmed by allergist")
       .build();
@@ -176,6 +193,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should add a reaction with manifestation", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .reaction({
         manifestation: [
           { code: "271807003", system: CodeSystems.SNOMED, display: "Eruption of skin" },
@@ -191,6 +209,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should add a reaction with substance", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .reaction({
         manifestation: [
           { code: "39579001", system: CodeSystems.SNOMED, display: "Anaphylaxis" },
@@ -209,6 +228,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should add a reaction with onset and note", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .reaction({
         manifestation: [
           { code: "271807003", system: CodeSystems.SNOMED, display: "Rash" },
@@ -225,6 +245,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should add multiple reactions", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .reaction({
         manifestation: [
           { code: "271807003", system: CodeSystems.SNOMED, display: "Rash" },
@@ -243,6 +264,7 @@ describe("AllergyIntoleranceBuilder", () => {
 
   it("should add reaction with multiple manifestations", () => {
     const allergy = new AllergyIntoleranceBuilder()
+      .patient("Patient/test")
       .reaction({
         manifestation: [
           { code: "271807003", system: CodeSystems.SNOMED, display: "Rash" },
@@ -302,5 +324,41 @@ describe("AllergyIntoleranceBuilder", () => {
     const parsed = JSON.parse(json);
     expect(parsed.resourceType).toBe("AllergyIntolerance");
     expect(parsed.code.coding[0].code).toBe("387207008");
+  });
+
+  // --- Validation ---
+
+  describe("validation", () => {
+    it("should throw ValidationError when patient is missing", () => {
+      expect(() => new AllergyIntoleranceBuilder().build()).toThrow(ValidationError);
+    });
+
+    it("should not throw when patient is provided", () => {
+      expect(() => new AllergyIntoleranceBuilder().patient("Patient/123").build()).not.toThrow();
+    });
+  });
+
+  // --- Choice Types ---
+
+  describe("choice types", () => {
+    it("onsetDateTime should clear onsetAge", () => {
+      const allergy = new AllergyIntoleranceBuilder()
+        .patient("Patient/test")
+        .onsetAge(25, "years")
+        .onsetDateTime("2020-01-01")
+        .build();
+      expect(allergy.onsetDateTime).toBe("2020-01-01");
+      expect(allergy.onsetAge).toBeUndefined();
+    });
+
+    it("onsetString should clear onsetDateTime", () => {
+      const allergy = new AllergyIntoleranceBuilder()
+        .patient("Patient/test")
+        .onsetDateTime("2020-01-01")
+        .onsetString("Childhood")
+        .build();
+      expect(allergy.onsetString).toBe("Childhood");
+      expect(allergy.onsetDateTime).toBeUndefined();
+    });
   });
 });

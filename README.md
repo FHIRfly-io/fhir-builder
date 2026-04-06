@@ -25,6 +25,15 @@ const patient = fb.patient()
   .build();
 ```
 
+## Why fhir-builder?
+
+- **Zero dependencies** — no transitive supply chain risk, works offline
+- **Fluent API** — readable, chainable builder pattern for all 13 FHIR R4 resource types
+- **US Core built-in** — race, ethnicity, birth sex extensions constructed correctly out of the box
+- **Optional enrichment** — pair with `@fhirfly-io/terminology` for display names and crosswalks, or use standalone
+- **Bundle reference resolution** — automatic `urn:uuid` rewriting for transaction bundles
+- **Validation on build** — `build()` throws `ValidationError` with structured errors when required fields are missing
+
 ## Features
 
 - Fluent builder API for 12+ FHIR R4 resource types

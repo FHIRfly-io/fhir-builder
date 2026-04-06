@@ -23,6 +23,7 @@ import {
   buildReference,
 } from "./helpers.js";
 import { CodeSystems } from "./code-systems.js";
+import type { ValidationIssue } from "./errors.js";
 import type {
   Annotation,
   CodeableConcept,
@@ -100,6 +101,14 @@ export class ObservationBuilder extends ResourceBuilder<ObservationResource> {
     (this.resource as ObservationResource).code = { coding: [] };
   }
 
+  protected getValidationErrors(): ValidationIssue[] {
+    const errors: ValidationIssue[] = [];
+    if (!(this.resource as ObservationResource).code?.coding?.length) {
+      errors.push({ field: "code", message: "code requires at least one coding", severity: "error" });
+    }
+    return errors;
+  }
+
   // --- Required Fields ---
 
   /** Set observation status (required). */
@@ -171,12 +180,14 @@ export class ObservationBuilder extends ResourceBuilder<ObservationResource> {
 
   /** Set effective date/time. */
   effectiveDateTime(dateTime: string): this {
+    this.clearChoiceType(["effectiveDateTime", "effectivePeriod"], "effectiveDateTime");
     this.resource.effectiveDateTime = dateTime;
     return this;
   }
 
   /** Set effective period. */
   effectivePeriod(start: string, end?: string): this {
+    this.clearChoiceType(["effectiveDateTime", "effectivePeriod"], "effectivePeriod");
     this.resource.effectivePeriod = buildPeriod(start, end);
     return this;
   }
@@ -205,6 +216,7 @@ export class ObservationBuilder extends ResourceBuilder<ObservationResource> {
     systemOrCode?: string,
     code?: string
   ): this {
+    this.clearChoiceType(["valueQuantity", "valueCodeableConcept", "valueString", "valueBoolean"], "valueQuantity");
     this.resource.valueQuantity = buildQuantity(
       value,
       unit,
@@ -220,6 +232,7 @@ export class ObservationBuilder extends ResourceBuilder<ObservationResource> {
     system: string,
     display?: string
   ): this {
+    this.clearChoiceType(["valueQuantity", "valueCodeableConcept", "valueString", "valueBoolean"], "valueCodeableConcept");
     this.resource.valueCodeableConcept = buildCodeableConcept(
       code,
       system,
@@ -230,12 +243,14 @@ export class ObservationBuilder extends ResourceBuilder<ObservationResource> {
 
   /** Set a string value. */
   valueString(value: string): this {
+    this.clearChoiceType(["valueQuantity", "valueCodeableConcept", "valueString", "valueBoolean"], "valueString");
     this.resource.valueString = value;
     return this;
   }
 
   /** Set a boolean value. */
   valueBoolean(value: boolean): this {
+    this.clearChoiceType(["valueQuantity", "valueCodeableConcept", "valueString", "valueBoolean"], "valueBoolean");
     this.resource.valueBoolean = value;
     return this;
   }

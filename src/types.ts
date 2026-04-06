@@ -193,6 +193,15 @@ export interface AddressInput {
   use?: "home" | "work" | "temp" | "old" | "billing";
 }
 
+/** FHIR Dosage — instructions for medication use. */
+export interface Dosage {
+  text?: string;
+  route?: CodeableConcept;
+  doseAndRate?: { doseQuantity?: Quantity }[];
+  timing?: { repeat?: { frequency?: number; period?: number; periodUnit?: string } };
+  asNeededBoolean?: boolean;
+}
+
 /** Input for building a Dosage. */
 export interface DosageInput {
   text?: string;
