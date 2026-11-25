@@ -7,7 +7,7 @@
  * ```typescript
  * const medStatement = new MedicationStatementBuilder()
  *   .status('active')
- *   .medicationByNDC('0069-0151-01', 'Atorvastatin 10mg')
+ *   .medicationByNDC('58151-155-77', 'Atorvastatin 10mg')
  *   .subject('Patient/123')
  *   .dosage({ text: 'Take 1 tablet daily', route: { code: '26643006', display: 'Oral' } })
  *   .build();
@@ -125,7 +125,7 @@ export class MedicationStatementBuilder extends ResourceBuilder<MedicationStatem
    * Add an additional coding to the medication (e.g., RxNorm crosswalk from enrichment).
    *
    * ```typescript
-   * .medicationByNDC('0069-0151-01', 'Atorvastatin')
+   * .medicationByNDC('58151-155-77', 'Atorvastatin')
    * .addCoding({ system: CodeSystems.RXNORM, code: '83367', display: 'atorvastatin' })
    * ```
    */

@@ -73,11 +73,11 @@ const fb = new FHIRBuilder();
 const api = new Fhirfly({ apiKey: process.env.FHIRFLY_KEY });
 
 // Look up the NDC code
-const ndc = await api.ndc.lookup('0069-0151-01');
+const ndc = await api.ndc.lookup('58151-155-77');
 
 // Build an enriched medication statement
 const med = fb.medicationStatement()
-  .medicationByNDC('0069-0151-01', ndc.display)
+  .medicationByNDC('58151-155-77', ndc.display)
   .addCoding(ndc.fhir_coding.rxnorm)
   .status('active')
   .subject(patient)
